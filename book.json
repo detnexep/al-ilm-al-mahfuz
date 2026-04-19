@@ -1,12 +1,44 @@
-[
+ [
   {
     "title": "Tafsir Ibn Kathir (Vol 1)",
     "author": "Ibn Kathir",
-    "link": "https://drive.google.com/file/d/FILE_ID/preview"
+    "category": "Tafsir",
+    "description": "The most widely used classical Tafsir. Vol 1 covers Surah Al-Fatiha and the beginning of Al-Baqarah.",
+    "link": "https://drive.google.com/file/d/1RrRGYaACM0hNaJdWsViD0Ci4DuIhvWAE/view?usp=drivesdk"
   },
   {
     "title": "Riyadus Salihin",
-    "author": "Imam Nawawi",
-    "link": "https://drive.google.com/file/d/FILE_ID/preview"
+    "author": "Imam Al-Nawawi",
+    "category": "Hadith",
+    "description": "Gardens of the Righteous — a collection of authentic hadiths on Islamic conduct and character.",
+    "link": "https://drive.google.com/file/d/YOUR_FILE_ID_HERE/preview"
+  },
+  {
+    "title": "Bulugh Al-Maram",
+    "author": "Ibn Hajar Al-Asqalani",
+    "category": "Hadith",
+    "description": "Attainment of the Objective — hadiths covering Islamic jurisprudence and rulings.",
+    "link": "https://drive.google.com/file/d/YOUR_FILE_ID_HERE/preview"
+  },
+  {
+    "title": "Al-Aqeedah Al-Wasitiyyah",
+    "author": "Ibn Taymiyyah",
+    "category": "Aqeedah",
+    "description": "A concise treatise on the creed of Ahlus Sunnah wal Jama'ah regarding Allah's names and attributes.",
+    "link": "https://drive.google.com/file/d/YOUR_FILE_ID_HERE/preview"
+  },
+  {
+    "title": "The Sealed Nectar (Ar-Raheeq Al-Makhtum)",
+    "author": "Safi-ur-Rahman Al-Mubarakpuri",
+    "category": "Seerah",
+    "description": "Award-winning biography of Prophet Muhammad ﷺ. Clear, detailed, and comprehensive.",
+    "link": "https://drive.google.com/file/d/YOUR_FILE_ID_HERE/preview"
+  },
+  {
+    "title": "Madinah Arabic Book 1",
+    "author": "Dr. V. Abdur Rahim",
+    "category": "Arabic",
+    "description": "The foundational textbook of the famous Madinah Arabic course. Starts from the very basics.",
+    "link": "https://drive.google.com/file/d/YOUR_FILE_ID_HERE/preview"
   }
 ]
