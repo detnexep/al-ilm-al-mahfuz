@@ -309,6 +309,7 @@
       border-radius: 12px;
       width: 100%;
       max-width: 860px;
+      height: 92vh;
       max-height: 92vh;
       display: flex;
       flex-direction: column;
@@ -318,6 +319,19 @@
     @keyframes slideUp {
       from { transform: translateY(30px); opacity: 0; }
       to   { transform: translateY(0);    opacity: 1; }
+    }
+
+    /* Fullscreen modal on mobile */
+    @media (max-width: 768px) {
+      #modal-overlay { padding: 0; }
+      #modal {
+        border-radius: 0;
+        height: 100vh;
+        max-height: 100vh;
+        max-width: 100vw;
+      }
+      #modal-header { padding: 10px 14px; }
+      #modal-footer { padding: 8px 14px; }
     }
 
     #modal-header {
@@ -426,10 +440,26 @@
     }
 
     /* ── Responsive ── */
-    @media (max-width: 500px) {
+    @media (max-width: 768px) {
       h1 { font-size: 1.5rem; }
       #books { grid-template-columns: 1fr; }
-      #modal { max-height: 100vh; border-radius: 0; }
+
+      #modal-overlay {
+        padding: 0;
+        align-items: stretch;
+      }
+      #modal {
+        width: 100%;
+        height: 100%;
+        max-width: 100%;
+        max-height: 100%;
+        border-radius: 0;
+        border: none;
+      }
+      #modal-header { padding: 12px 14px; }
+      #modal-title  { font-size: .88rem; }
+      #modal-iframe-wrap { flex: 1; min-height: 0; }
+      #modal-footer { padding: 10px 14px; }
     }
   </style>
 </head>
@@ -448,7 +478,7 @@
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
         </svg>
-        <input type="text" id="search" placeholder="Search by title or author…" autocomplete="off"/>
+        <input type="text" id="search" placeholder="Search by title, author or publication…" autocomplete="off"/>
       </div>
       <div class="filters" id="filters">
         <button class="filter-btn active" data-cat="all">All Books</button>
@@ -495,15 +525,15 @@
 
   <script>
     const CATEGORY_ICONS = {
-      'Tafsir':   '📖',
-      'Hadith':   '📜',
-      'Fiqh':     '⚖️',
-      'Aqeedah':  '🌙',
-      'Seerah':   '🕌',
-      'Arabic':   '✍️',
-      'Dua':      '🤲',
-      'History':  '🏛️',
-      'default':  '📚',
+      'Tafsir':    '📖',
+      'Hadith':    '📜',
+      'Fiqh':      '⚖️',
+      'Aqeedah':   '🌙',
+      'Seerah':    '🕌',
+      'Biography': '🧾',
+      'Arabic':    '✍️',
+      'History':   '🏛️',
+      'default':   '📚',
     };
 
     let allBooks = [];
@@ -552,7 +582,10 @@
       const q = searchQuery;
       const filtered = allBooks.filter(b => {
         const matchCat = activeCategory === 'all' || b.category === activeCategory;
-        const matchQ   = !q || b.title.toLowerCase().includes(q) || b.author.toLowerCase().includes(q);
+        const matchQ   = !q ||
+          b.title.toLowerCase().includes(q) ||
+          (b.author      && b.author.toLowerCase().includes(q)) ||
+          (b.publication && b.publication.toLowerCase().includes(q));
         return matchCat && matchQ;
       });
 
@@ -571,6 +604,10 @@
 
       filtered.forEach((book, i) => {
         const icon = CATEGORY_ICONS[book.category] || CATEGORY_ICONS.default;
+        // Build meta line: author · publication (show both if available)
+        const metaParts = [book.author, book.publication].filter(Boolean);
+        const metaLine  = metaParts.join(' · ');
+
         const card = document.createElement('div');
         card.className = 'book';
         card.style.animationDelay = `${i * 0.05}s`;
@@ -578,7 +615,7 @@
           <span class="book-icon">${icon}</span>
           ${book.category ? `<span class="book-category">${book.category}</span>` : ''}
           <div class="book-title">${book.title}</div>
-          <div class="book-author">${book.author}</div>
+          ${metaLine ? `<div class="book-author">${metaLine}</div>` : ''}
           ${book.description ? `<div class="book-desc">${book.description}</div>` : ''}
           <button class="book-btn">📖 Read Online</button>
         `;
