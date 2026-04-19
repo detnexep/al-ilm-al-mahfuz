@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+l<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -348,10 +348,19 @@
       <label>Title <span>*</span></label>
       <input type="text" id="f-title" placeholder="e.g. Tafsir Ibn Kathir Vol 1"/>
     </div>
+
     <div class="field">
-      <label>Author <span>*</span></label>
+      <label>Author <span style="color:var(--muted);font-size:.65rem;">(at least one of Author / Publication required)</span></label>
       <input type="text" id="f-author" placeholder="e.g. Ibn Kathir"/>
     </div>
+
+    <div class="field">
+      <label>Publication</label>
+      <input type="text" id="f-publication" placeholder="e.g. Darussalam" list="publication-list" autocomplete="off"/>
+      <datalist id="publication-list"></datalist>
+      <p class="hint">Start typing — existing publications will appear as suggestions.</p>
+    </div>
+
     <div class="field">
       <label>Category</label>
       <select id="f-category">
@@ -361,25 +370,25 @@
         <option>Fiqh</option>
         <option>Aqeedah</option>
         <option>Seerah</option>
+        <option>Biography</option>
         <option>Arabic</option>
-        <option>Dua</option>
         <option>History</option>
         <option>Other</option>
       </select>
     </div>
+
     <div class="field">
       <label>Description</label>
       <textarea id="f-desc" placeholder="Short summary of the book (optional)"></textarea>
     </div>
+
     <div class="field">
       <label>Google Drive Link <span>*</span></label>
       <div class="drive-row">
         <input type="text" id="f-link" placeholder="Paste any Google Drive share link"/>
         <button class="extract-btn" onclick="extractDriveLink()">Auto Fix</button>
       </div>
-      <p class="hint">
-        Paste the share link as-is. "Auto Fix" converts it to the correct preview format automatically.
-      </p>
+      <p class="hint">Paste the share link as-is. "Auto Fix" converts it to the correct preview format automatically.</p>
     </div>
 
     <button class="btn-primary" id="add-btn" onclick="addBook()">＋ Add Book to Library</button>
@@ -483,11 +492,18 @@
       currentSha   = file.sha;
       currentBooks = JSON.parse(decodeURIComponent(escape(atob(file.content))));
       renderBookList();
+      populatePublicationList();
       toast(`Loaded ${currentBooks.length} books.`, 'success');
     } catch (e) {
       toast('Failed. See error details below.', 'error');
       showError(e.message);
     }
+  }
+
+  function populatePublicationList() {
+    const dl = document.getElementById('publication-list');
+    const pubs = [...new Set(currentBooks.map(b => b.publication).filter(Boolean))].sort();
+    dl.innerHTML = pubs.map(p => `<option value="${p}">`).join('');
   }
 
   function showError(msg) {
@@ -496,8 +512,6 @@
     const hint  = document.getElementById('error-hint');
     box.style.display = 'block';
     msgEl.textContent = msg;
-
-    // Give a helpful hint based on status code
     if (msg.includes('401'))      hint.textContent = '→ Token is invalid or expired. Generate a new classic token.';
     else if (msg.includes('403')) hint.textContent = '→ Token lacks permission. Make sure "repo" scope is checked.';
     else if (msg.includes('404')) hint.textContent = '→ Repo or books.json not found. Check username & repo name. Also make sure books.json exists in the repo (even as empty []).';
@@ -512,16 +526,17 @@
 
   // ── Add book ──────────────────────────────────────────
   async function addBook() {
-    const title  = document.getElementById('f-title').value.trim();
-    const author = document.getElementById('f-author').value.trim();
-    const cat    = document.getElementById('f-category').value;
-    const desc   = document.getElementById('f-desc').value.trim();
-    const link   = document.getElementById('f-link').value.trim();
+    const title       = document.getElementById('f-title').value.trim();
+    const author      = document.getElementById('f-author').value.trim();
+    const publication = document.getElementById('f-publication').value.trim();
+    const cat         = document.getElementById('f-category').value;
+    const desc        = document.getElementById('f-desc').value.trim();
+    const link        = document.getElementById('f-link').value.trim();
 
-    if (!title)  return toast('Title is required.', 'error');
-    if (!author) return toast('Author is required.', 'error');
-    if (!link)   return toast('Google Drive link is required.', 'error');
-    if (!currentSha) return toast('Load books first (save config).', 'error');
+    if (!title)               return toast('Title is required.', 'error');
+    if (!author && !publication) return toast('Enter at least an Author or Publication.', 'error');
+    if (!link)                return toast('Google Drive link is required.', 'error');
+    if (!currentSha && currentBooks.length === 0 && currentSha !== '') return toast('Load books first (save config).', 'error');
 
     const previewLink = toPreviewLink(link);
     if (!previewLink) return toast('Invalid Google Drive link. Paste the share link and try Auto Fix.', 'error');
@@ -531,23 +546,25 @@
     btn.textContent = 'Saving…';
 
     try {
-      const newBook = { title, author };
-      if (cat)  newBook.category    = cat;
-      if (desc) newBook.description = desc;
+      const newBook = { title };
+      if (author)      newBook.author      = author;
+      if (publication) newBook.publication = publication;
+      if (cat)         newBook.category    = cat;
+      if (desc)        newBook.description = desc;
       newBook.link = previewLink;
 
       currentBooks.push(newBook);
       await putFile(currentBooks, currentSha);
 
-      // Refresh SHA after write
       const file = await getFile();
       currentSha = file.sha;
 
       renderBookList();
+      populatePublicationList();
       clearForm();
       toast(`"${title}" added successfully!`, 'success');
     } catch (e) {
-      currentBooks.pop(); // rollback local
+      currentBooks.pop();
       toast('Failed to save. Check token permissions (needs repo scope).', 'error');
       console.error(e);
     } finally {
@@ -582,12 +599,13 @@
     }
     container.innerHTML = '';
     currentBooks.forEach((b, i) => {
+      const meta = [b.author, b.publication].filter(Boolean).join(' · ');
       const item = document.createElement('div');
       item.className = 'book-item';
       item.innerHTML = `
         <div class="book-item-info">
           <div class="book-item-title">${b.title}</div>
-          <div class="book-item-meta">${b.author}</div>
+          <div class="book-item-meta">${meta}</div>
         </div>
         ${b.category ? `<span class="book-item-cat">${b.category}</span>` : ''}
         <button class="delete-btn" title="Delete book">🗑</button>
@@ -624,7 +642,7 @@
   }
 
   function clearForm() {
-    ['f-title','f-author','f-desc','f-link'].forEach(id => document.getElementById(id).value = '');
+    ['f-title','f-author','f-publication','f-desc','f-link'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('f-category').value = '';
   }
 
