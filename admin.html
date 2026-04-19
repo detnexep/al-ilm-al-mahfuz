@@ -331,6 +331,13 @@
     </div>
 
     <button class="btn-primary" onclick="saveConfig()">💾 Save Config & Load Books</button>
+
+    <!-- Error debug box -->
+    <div id="error-box" style="display:none;margin-top:16px;padding:14px;background:#2a0a0a;border:1px solid #7a2020;border-radius:8px;">
+      <div style="font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:.1em;color:#ff6060;margin-bottom:8px;">⚠ ERROR DETAILS</div>
+      <div id="error-msg" style="font-size:.88rem;color:#ffaaaa;line-height:1.6;word-break:break-all;"></div>
+      <div id="error-hint" style="margin-top:10px;font-size:.82rem;color:#cc8888;font-style:italic;"></div>
+    </div>
   </div>
 
   <!-- STEP 2: Add Book -->
@@ -436,13 +443,21 @@
     const res = await fetch(`${API}/repos/${user}/${repo}/contents/books.json`, {
       headers: { Authorization: `token ${token}`, Accept: 'application/vnd.github.v3+json' }
     });
+    // If file doesn't exist yet, return empty state instead of crashing
+    if (res.status === 404) return { content: btoa('[]'), sha: '' };
     if (!res.ok) throw new Error(`GitHub error ${res.status}: ${await res.text()}`);
-    return res.json(); // { content, sha }
+    return res.json();
   }
 
   async function putFile(books, sha) {
     const { user, repo, token } = getConfig();
     const content = btoa(unescape(encodeURIComponent(JSON.stringify(books, null, 2))));
+    const body = {
+      message: `📚 Update books.json — ${new Date().toLocaleDateString()}`,
+      content,
+    };
+    // Only include sha if file already exists (sha='' means new file)
+    if (sha) body.sha = sha;
     const res = await fetch(`${API}/repos/${user}/${repo}/contents/books.json`, {
       method: 'PUT',
       headers: {
@@ -450,11 +465,7 @@
         Accept: 'application/vnd.github.v3+json',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        message: `📚 Update books.json — ${new Date().toLocaleDateString()}`,
-        content,
-        sha,
-      })
+      body: JSON.stringify(body)
     });
     if (!res.ok) throw new Error(`GitHub error ${res.status}: ${await res.text()}`);
     return res.json();
@@ -465,6 +476,7 @@
   let currentBooks = [];
 
   async function loadBooks() {
+    hideError();
     try {
       toast('Loading books…', 'info');
       const file = await getFile();
@@ -473,9 +485,29 @@
       renderBookList();
       toast(`Loaded ${currentBooks.length} books.`, 'success');
     } catch (e) {
-      toast('Could not load books.json. Check your config.', 'error');
-      console.error(e);
+      toast('Failed. See error details below.', 'error');
+      showError(e.message);
     }
+  }
+
+  function showError(msg) {
+    const box   = document.getElementById('error-box');
+    const msgEl = document.getElementById('error-msg');
+    const hint  = document.getElementById('error-hint');
+    box.style.display = 'block';
+    msgEl.textContent = msg;
+
+    // Give a helpful hint based on status code
+    if (msg.includes('401'))      hint.textContent = '→ Token is invalid or expired. Generate a new classic token.';
+    else if (msg.includes('403')) hint.textContent = '→ Token lacks permission. Make sure "repo" scope is checked.';
+    else if (msg.includes('404')) hint.textContent = '→ Repo or books.json not found. Check username & repo name. Also make sure books.json exists in the repo (even as empty []).';
+    else if (msg.includes('422')) hint.textContent = '→ Unprocessable. The books.json may have invalid content.';
+    else if (msg.includes('Failed to fetch')) hint.textContent = '→ Network error. Check your internet connection.';
+    else hint.textContent = '→ Copy this message and share it to get help.';
+  }
+
+  function hideError() {
+    document.getElementById('error-box').style.display = 'none';
   }
 
   // ── Add book ──────────────────────────────────────────
