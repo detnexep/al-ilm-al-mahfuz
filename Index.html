@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>al ilm al mahfuz</title>
+</head>
+<body>
+  <h1>Book Archive</h1>
+  <div id="books"></div>
+
+  <script>
+    fetch('books.json')
+      .then(res => res.json())
+      .then(data => {
+        const container = document.getElementById('books');
+        data.forEach(book => {
+          const div = document.createElement('div');
+          div.innerHTML = `
+            <h3>${book.title}</h3>
+            <p>${book.author}</p>
+            <a href="${book.link}" target="_blank">Read</a>
+          `;
+          container.appendChild(div);
+        });
+      });
+  </script>
+</body>
+</html>
