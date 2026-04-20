@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Al Ilm Al Mahfuz — Al Haqq Archive </title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Amiri:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet"/>
+
+  <style>
+    :root {
+      --bg:        #0c1a14;
+      --bg2:       #111f18;
+      --card:      #152318;
+      --border:    #2a4a32;
+      --gold:      #c9a84c;
+      --gold2:     #e8c96a;
+      --text:      #f0e6d3;
+      --muted:     #8aab96;
+      --accent:    #1f6b42;
+      --danger:    #8b2a2a;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Crimson Text', Georgia, serif;
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Background pattern ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        repeating-linear-gradient(45deg, rgba(201,168,76,.04) 0px, rgba(201,168,76,.04) 1px, transparent 1px, transparent 40px),
+        repeating-linear-gradient(-45deg, rgba(201,168,76,.04) 0px, rgba(201,168,76,.04) 1px, transparent 1px, transparent 40px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Header ── */
+    header {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 52px 20px 36px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, #0a1610 0%, transparent 100%);
+    }
+
+    .bismillah {
+      font-family: 'Amiri', serif;
+      font-size: clamp(1.2rem, 4vw, 1.8rem);
+      color: var(--gold);
+      letter-spacing: .05em;
+      margin-bottom: 14px;
+      opacity: .9;
+    }
+
+    .ornament {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .ornament::before,
+    .ornament::after {
+      content: '';
+      flex: 1;
+      max-width: 140px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+    .ornament span {
+      color: var(--gold);
+      font-size: 1.1rem;
+    }
+
+    h1 {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(1.6rem, 5vw, 2.8rem);
+      font-weight: 700;
+      letter-spacing: .08em;
+      color: var(--gold2);
+      text-shadow: 0 0 40px rgba(201,168,76,.3);
+      line-height: 1.1;
+    }
+
+    .tagline {
+      font-family: 'Crimson Text', serif;
+      font-style: italic;
+      color: var(--muted);
+      font-size: 1.05rem;
+      margin-top: 8px;
+      letter-spacing: .04em;
+    }
+
+    /* ── Controls ── */
+    .controls {
+      position: relative;
+      z-index: 1;
+      max-width: 900px;
+      margin: 32px auto 0;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .search-wrap {
+      position: relative;
+    }
+    .search-wrap svg {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      pointer-events: none;
+    }
+    #search {
+      width: 100%;
+      padding: 12px 16px 12px 44px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'Crimson Text', serif;
+      font-size: 1.05rem;
+      outline: none;
+      transition: border-color .2s;
+    }
+    #search::placeholder { color: var(--muted); }
+    #search:focus { border-color: var(--gold); }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .filter-btn {
+      font-family: 'Cinzel', serif;
+      font-size: .72rem;
+      letter-spacing: .08em;
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .filter-btn:hover { border-color: var(--gold); color: var(--gold); }
+    .filter-btn.active {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: var(--bg);
+      font-weight: 600;
+    }
+
+    /* ── Stats bar ── */
+    #stats-bar {
+      position: relative;
+      z-index: 1;
+      max-width: 900px;
+      margin: 16px auto 0;
+      padding: 0 20px;
+      font-size: .88rem;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    /* ── Grid ── */
+    #books {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 20px;
+      max-width: 1100px;
+      margin: 24px auto 60px;
+      padding: 0 20px;
+    }
+
+    /* ── Book card ── */
+    .book {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 22px 18px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      cursor: pointer;
+      transition: transform .25s, box-shadow .25s, border-color .25s;
+      animation: fadeUp .4s ease both;
+      position: relative;
+      overflow: hidden;
+    }
+    .book::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--gold), var(--accent));
+      opacity: 0;
+      transition: opacity .25s;
+    }
+    .book:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,.5); border-color: var(--gold); }
+    .book:hover::before { opacity: 1; }
+
+    .book-icon {
+      font-size: 2rem;
+      line-height: 1;
+    }
+    .book-category {
+      font-family: 'Cinzel', serif;
+      font-size: .65rem;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      background: rgba(201,168,76,.1);
+      border: 1px solid rgba(201,168,76,.2);
+      border-radius: 4px;
+      padding: 2px 8px;
+      display: inline-block;
+      width: fit-content;
+    }
+    .book-title {
+      font-family: 'Cinzel', serif;
+      font-size: .97rem;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.35;
+    }
+    .book-author {
+      font-style: italic;
+      color: var(--muted);
+      font-size: .92rem;
+    }
+    .book-desc {
+      color: #7a9e87;
+      font-size: .88rem;
+      line-height: 1.5;
+      flex: 1;
+    }
+    .book-btn {
+      margin-top: 6px;
+      padding: 9px 0;
+      background: linear-gradient(135deg, var(--accent), #145733);
+      border: 1px solid rgba(201,168,76,.2);
+      border-radius: 6px;
+      color: var(--gold2);
+      font-family: 'Cinzel', serif;
+      font-size: .75rem;
+      font-weight: 600;
+      letter-spacing: .1em;
+      cursor: pointer;
+      transition: all .2s;
+      width: 100%;
+    }
+    .book-btn:hover { background: linear-gradient(135deg, #27804e, var(--accent)); border-color: var(--gold); }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Empty state ── */
+    #empty {
+      display: none;
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+    }
+    #empty .empty-icon { font-size: 3rem; margin-bottom: 12px; }
+
+    /* ── Modal ── */
+    #modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.82);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      backdrop-filter: blur(6px);
+      animation: fadeIn .2s ease;
+    }
+    #modal-overlay.open { display: flex; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    #modal {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 860px;
+      height: 92vh;
+      max-height: 92vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      animation: slideUp .25s ease;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(30px); opacity: 0; }
+      to   { transform: translateY(0);    opacity: 1; }
+    }
+
+    /* Fullscreen modal on mobile */
+    @media (max-width: 768px) {
+      #modal-overlay { padding: 0; }
+      #modal {
+        border-radius: 0;
+        height: 100vh;
+        max-height: 100vh;
+        max-width: 100vw;
+      }
+      #modal-header { padding: 10px 14px; }
+      #modal-footer { padding: 8px 14px; }
+    }
+
+    #modal-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    #modal-info { flex: 1; }
+    #modal-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--gold2);
+      line-height: 1.3;
+    }
+    #modal-author {
+      font-style: italic;
+      color: var(--muted);
+      font-size: .9rem;
+      margin-top: 3px;
+    }
+    #modal-close {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--muted);
+      cursor: pointer;
+      padding: 6px 10px;
+      font-size: 1rem;
+      line-height: 1;
+      transition: all .2s;
+      flex-shrink: 0;
+    }
+    #modal-close:hover { border-color: var(--gold); color: var(--gold); }
+
+    #modal-iframe-wrap {
+      flex: 1;
+      overflow: hidden;
+      background: #000;
+      position: relative;
+    }
+    #modal-iframe-wrap iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+    .iframe-loading {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-style: italic;
+      font-size: .95rem;
+      background: #0a1610;
+    }
+
+    #modal-footer {
+      display: flex;
+      gap: 10px;
+      padding: 14px 20px;
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .modal-action {
+      flex: 1;
+      padding: 10px;
+      border-radius: 7px;
+      font-family: 'Cinzel', serif;
+      font-size: .75rem;
+      font-weight: 600;
+      letter-spacing: .08em;
+      cursor: pointer;
+      transition: all .2s;
+      text-align: center;
+      text-decoration: none;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #145733);
+      border: 1px solid rgba(201,168,76,.25);
+      color: var(--gold2);
+    }
+    .btn-primary:hover { border-color: var(--gold); }
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+    .btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
+
+    /* ── Footer ── */
+    footer {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 24px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: .85rem;
+      font-style: italic;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      h1 { font-size: 1.5rem; }
+      #books { grid-template-columns: 1fr; }
+
+      #modal-overlay {
+        padding: 0;
+        align-items: stretch;
+      }
+      #modal {
+        width: 100%;
+        height: 100%;
+        max-width: 100%;
+        max-height: 100%;
+        border-radius: 0;
+        border: none;
+      }
+      #modal-header { padding: 12px 14px; }
+      #modal-title  { font-size: .88rem; }
+      #modal-iframe-wrap { flex: 1; min-height: 0; }
+      #modal-footer { padding: 10px 14px; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <p class="bismillah">بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ</p>
+    <div class="ornament"><span>✦</span></div>
+    <h1>Al Ilm Al Mahfuz</h1>
+    <p class="tagline">The Preserved Knowledge — Al Haqq Archive</p>
+
+    <div class="controls">
+      <div class="search-wrap">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <input type="text" id="search" placeholder="Search by title, author or publication…" autocomplete="off"/>
+      </div>
+      <div class="filters" id="filters">
+        <button class="filter-btn active" data-cat="all">All Books</button>
+        <!-- Category buttons injected by JS -->
+      </div>
+    </div>
+  </header>
+
+  <p id="stats-bar"></p>
+
+  <!-- BOOK GRID -->
+  <div id="books"></div>
+  <div id="empty">
+    <div class="empty-icon">📭</div>
+    <p>No books found for your search.</p>
+  </div>
+
+  <!-- MODAL READER -->
+  <div id="modal-overlay">
+    <div id="modal">
+      <div id="modal-header">
+        <div id="modal-info">
+          <div id="modal-title"></div>
+          <div id="modal-author"></div>
+        </div>
+        <button id="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div id="modal-iframe-wrap">
+        <div class="iframe-loading" id="iframe-loading">Loading book…</div>
+        <iframe id="modal-iframe" allow="autoplay" onload="document.getElementById('iframe-loading').style.display='none'"></iframe>
+      </div>
+      <div id="modal-footer">
+        <a id="modal-open-link" class="modal-action btn-primary" href="#" target="_blank">⬡ Open in Google Drive</a>
+        <button class="modal-action btn-secondary" onclick="closeModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="ornament" style="justify-content:center;margin-bottom:8px"><span style="font-size:.7rem;opacity:.5">✦ ✦ ✦</span></div>
+    <p>Al Ilm Al Mahfuz — Preserving Islamic Knowledge for the Ummah</p>
+  </footer>
+
+  <script>
+    const CATEGORY_ICONS = {
+      'Fatawa':    '📖',
+      'Hadith':    '📜',
+      'Fiqh':      '⚖️',
+      'Aqeedah':   '🌙',
+      'Seerah':    '🕌',
+      'Biography': '🧾',
+      'Arabic':    '✍️',
+      'History':   '🏛️',
+      'default':   '📚',
+    };
+
+    let allBooks = [];
+    let activeCategory = 'all';
+    let searchQuery = '';
+
+    fetch('books.json')
+      .then(r => r.json())
+      .then(data => {
+        allBooks = data;
+        buildFilters(data);
+        renderBooks();
+      })
+      .catch(() => {
+        document.getElementById('books').innerHTML =
+          '<p style="color:var(--muted);text-align:center;padding:40px;grid-column:1/-1">Could not load books.json. Make sure it is in the same folder as index.html.</p>';
+      });
+
+    function buildFilters(data) {
+      const cats = [...new Set(data.map(b => b.category).filter(Boolean))].sort();
+      const container = document.getElementById('filters');
+      cats.forEach(cat => {
+        const btn = document.createElement('button');
+        btn.className = 'filter-btn';
+        btn.dataset.cat = cat;
+        btn.textContent = cat;
+        btn.onclick = () => setCategory(cat);
+        container.appendChild(btn);
+      });
+    }
+
+    function setCategory(cat) {
+      activeCategory = cat;
+      document.querySelectorAll('.filter-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.cat === cat);
+      });
+      renderBooks();
+    }
+
+    document.getElementById('search').addEventListener('input', e => {
+      searchQuery = e.target.value.toLowerCase();
+      renderBooks();
+    });
+
+    function renderBooks() {
+      const q = searchQuery;
+      const filtered = allBooks.filter(b => {
+        const matchCat = activeCategory === 'all' || b.category === activeCategory;
+        const matchQ   = !q ||
+          b.title.toLowerCase().includes(q) ||
+          (b.author      && b.author.toLowerCase().includes(q)) ||
+          (b.publication && b.publication.toLowerCase().includes(q));
+        return matchCat && matchQ;
+      });
+
+      const container = document.getElementById('books');
+      const empty     = document.getElementById('empty');
+      const stats     = document.getElementById('stats-bar');
+
+      container.innerHTML = '';
+      stats.textContent = `${filtered.length} book${filtered.length !== 1 ? 's' : ''} found`;
+
+      if (filtered.length === 0) {
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+
+      filtered.forEach((book, i) => {
+        const icon = CATEGORY_ICONS[book.category] || CATEGORY_ICONS.default;
+        // Build meta line: author · publication (show both if available)
+        const metaParts = [book.author, book.publication].filter(Boolean);
+        const metaLine  = metaParts.join(' · ');
+
+        const card = document.createElement('div');
+        card.className = 'book';
+        card.style.animationDelay = `${i * 0.05}s`;
+        card.innerHTML = `
+          <span class="book-icon">${icon}</span>
+          ${book.category ? `<span class="book-category">${book.category}</span>` : ''}
+          <div class="book-title">${book.title}</div>
+          ${metaLine ? `<div class="book-author">${metaLine}</div>` : ''}
+          ${book.description ? `<div class="book-desc">${book.description}</div>` : ''}
+          <button class="book-btn">📖 Read Online</button>
+        `;
+        card.querySelector('.book-btn').addEventListener('click', () => openModal(book));
+        container.appendChild(card);
+      });
+    }
+
+    function openModal(book) {
+      document.getElementById('modal-title').textContent  = book.title;
+      document.getElementById('modal-author').textContent = book.author;
+      document.getElementById('iframe-loading').style.display = 'flex';
+
+      const iframe = document.getElementById('modal-iframe');
+      iframe.src = book.link;
+
+      // Build "Open in Drive" link from preview link
+      const driveLink = book.link.replace('/preview', '/view');
+      document.getElementById('modal-open-link').href = driveLink;
+
+      document.getElementById('modal-overlay').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      document.getElementById('modal-overlay').classList.remove('open');
+      document.getElementById('modal-iframe').src = '';
+      document.body.style.overflow = '';
+    }
+
+    // Close on overlay click
+    document.getElementById('modal-overlay').addEventListener('click', e => {
+      if (e.target === document.getElementById('modal-overlay')) closeModal();
+    });
+
+    // Close on Escape
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+  </script>
+</body>
+</html>
