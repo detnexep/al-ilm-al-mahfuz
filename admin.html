@@ -1,4 +1,4 @@
-l<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -331,13 +331,6 @@ l<!DOCTYPE html>
     </div>
 
     <button class="btn-primary" onclick="saveConfig()">💾 Save Config & Load Books</button>
-
-    <!-- Error debug box -->
-    <div id="error-box" style="display:none;margin-top:16px;padding:14px;background:#2a0a0a;border:1px solid #7a2020;border-radius:8px;">
-      <div style="font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:.1em;color:#ff6060;margin-bottom:8px;">⚠ ERROR DETAILS</div>
-      <div id="error-msg" style="font-size:.88rem;color:#ffaaaa;line-height:1.6;word-break:break-all;"></div>
-      <div id="error-hint" style="margin-top:10px;font-size:.82rem;color:#cc8888;font-style:italic;"></div>
-    </div>
   </div>
 
   <!-- STEP 2: Add Book -->
@@ -348,47 +341,38 @@ l<!DOCTYPE html>
       <label>Title <span>*</span></label>
       <input type="text" id="f-title" placeholder="e.g. Tafsir Ibn Kathir Vol 1"/>
     </div>
-
     <div class="field">
-      <label>Author <span style="color:var(--muted);font-size:.65rem;">(at least one of Author / Publication required)</span></label>
+      <label>Author <span>*</span></label>
       <input type="text" id="f-author" placeholder="e.g. Ibn Kathir"/>
     </div>
-
-    <div class="field">
-      <label>Publication</label>
-      <input type="text" id="f-publication" placeholder="e.g. Darussalam" list="publication-list" autocomplete="off"/>
-      <datalist id="publication-list"></datalist>
-      <p class="hint">Start typing — existing publications will appear as suggestions.</p>
-    </div>
-
     <div class="field">
       <label>Category</label>
       <select id="f-category">
         <option value="">— Select Category —</option>
-        <option>Fatawa</option>
+        <option>Tafsir</option>
         <option>Hadith</option>
         <option>Fiqh</option>
         <option>Aqeedah</option>
         <option>Seerah</option>
-        <option>Biography</option>
         <option>Arabic</option>
+        <option>Dua</option>
         <option>History</option>
         <option>Other</option>
       </select>
     </div>
-
     <div class="field">
       <label>Description</label>
       <textarea id="f-desc" placeholder="Short summary of the book (optional)"></textarea>
     </div>
-
     <div class="field">
       <label>Google Drive Link <span>*</span></label>
       <div class="drive-row">
         <input type="text" id="f-link" placeholder="Paste any Google Drive share link"/>
         <button class="extract-btn" onclick="extractDriveLink()">Auto Fix</button>
       </div>
-      <p class="hint">Paste the share link as-is. "Auto Fix" converts it to the correct preview format automatically.</p>
+      <p class="hint">
+        Paste the share link as-is. "Auto Fix" converts it to the correct preview format automatically.
+      </p>
     </div>
 
     <button class="btn-primary" id="add-btn" onclick="addBook()">＋ Add Book to Library</button>
@@ -452,21 +436,13 @@ l<!DOCTYPE html>
     const res = await fetch(`${API}/repos/${user}/${repo}/contents/books.json`, {
       headers: { Authorization: `token ${token}`, Accept: 'application/vnd.github.v3+json' }
     });
-    // If file doesn't exist yet, return empty state instead of crashing
-    if (res.status === 404) return { content: btoa('[]'), sha: '' };
     if (!res.ok) throw new Error(`GitHub error ${res.status}: ${await res.text()}`);
-    return res.json();
+    return res.json(); // { content, sha }
   }
 
   async function putFile(books, sha) {
     const { user, repo, token } = getConfig();
     const content = btoa(unescape(encodeURIComponent(JSON.stringify(books, null, 2))));
-    const body = {
-      message: `📚 Update books.json — ${new Date().toLocaleDateString()}`,
-      content,
-    };
-    // Only include sha if file already exists (sha='' means new file)
-    if (sha) body.sha = sha;
     const res = await fetch(`${API}/repos/${user}/${repo}/contents/books.json`, {
       method: 'PUT',
       headers: {
@@ -474,7 +450,11 @@ l<!DOCTYPE html>
         Accept: 'application/vnd.github.v3+json',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(body)
+      body: JSON.stringify({
+        message: `📚 Update books.json — ${new Date().toLocaleDateString()}`,
+        content,
+        sha,
+      })
     });
     if (!res.ok) throw new Error(`GitHub error ${res.status}: ${await res.text()}`);
     return res.json();
@@ -485,58 +465,31 @@ l<!DOCTYPE html>
   let currentBooks = [];
 
   async function loadBooks() {
-    hideError();
     try {
       toast('Loading books…', 'info');
       const file = await getFile();
       currentSha   = file.sha;
       currentBooks = JSON.parse(decodeURIComponent(escape(atob(file.content))));
       renderBookList();
-      populatePublicationList();
       toast(`Loaded ${currentBooks.length} books.`, 'success');
     } catch (e) {
-      toast('Failed. See error details below.', 'error');
-      showError(e.message);
+      toast('Could not load books.json. Check your config.', 'error');
+      console.error(e);
     }
-  }
-
-  function populatePublicationList() {
-    const dl = document.getElementById('publication-list');
-    const pubs = [...new Set(currentBooks.map(b => b.publication).filter(Boolean))].sort();
-    dl.innerHTML = pubs.map(p => `<option value="${p}">`).join('');
-  }
-
-  function showError(msg) {
-    const box   = document.getElementById('error-box');
-    const msgEl = document.getElementById('error-msg');
-    const hint  = document.getElementById('error-hint');
-    box.style.display = 'block';
-    msgEl.textContent = msg;
-    if (msg.includes('401'))      hint.textContent = '→ Token is invalid or expired. Generate a new classic token.';
-    else if (msg.includes('403')) hint.textContent = '→ Token lacks permission. Make sure "repo" scope is checked.';
-    else if (msg.includes('404')) hint.textContent = '→ Repo or books.json not found. Check username & repo name. Also make sure books.json exists in the repo (even as empty []).';
-    else if (msg.includes('422')) hint.textContent = '→ Unprocessable. The books.json may have invalid content.';
-    else if (msg.includes('Failed to fetch')) hint.textContent = '→ Network error. Check your internet connection.';
-    else hint.textContent = '→ Copy this message and share it to get help.';
-  }
-
-  function hideError() {
-    document.getElementById('error-box').style.display = 'none';
   }
 
   // ── Add book ──────────────────────────────────────────
   async function addBook() {
-    const title       = document.getElementById('f-title').value.trim();
-    const author      = document.getElementById('f-author').value.trim();
-    const publication = document.getElementById('f-publication').value.trim();
-    const cat         = document.getElementById('f-category').value;
-    const desc        = document.getElementById('f-desc').value.trim();
-    const link        = document.getElementById('f-link').value.trim();
+    const title  = document.getElementById('f-title').value.trim();
+    const author = document.getElementById('f-author').value.trim();
+    const cat    = document.getElementById('f-category').value;
+    const desc   = document.getElementById('f-desc').value.trim();
+    const link   = document.getElementById('f-link').value.trim();
 
-    if (!title)               return toast('Title is required.', 'error');
-    if (!author && !publication) return toast('Enter at least an Author or Publication.', 'error');
-    if (!link)                return toast('Google Drive link is required.', 'error');
-    if (!currentSha && currentBooks.length === 0 && currentSha !== '') return toast('Load books first (save config).', 'error');
+    if (!title)  return toast('Title is required.', 'error');
+    if (!author) return toast('Author is required.', 'error');
+    if (!link)   return toast('Google Drive link is required.', 'error');
+    if (!currentSha) return toast('Load books first (save config).', 'error');
 
     const previewLink = toPreviewLink(link);
     if (!previewLink) return toast('Invalid Google Drive link. Paste the share link and try Auto Fix.', 'error');
@@ -546,25 +499,23 @@ l<!DOCTYPE html>
     btn.textContent = 'Saving…';
 
     try {
-      const newBook = { title };
-      if (author)      newBook.author      = author;
-      if (publication) newBook.publication = publication;
-      if (cat)         newBook.category    = cat;
-      if (desc)        newBook.description = desc;
+      const newBook = { title, author };
+      if (cat)  newBook.category    = cat;
+      if (desc) newBook.description = desc;
       newBook.link = previewLink;
 
       currentBooks.push(newBook);
       await putFile(currentBooks, currentSha);
 
+      // Refresh SHA after write
       const file = await getFile();
       currentSha = file.sha;
 
       renderBookList();
-      populatePublicationList();
       clearForm();
       toast(`"${title}" added successfully!`, 'success');
     } catch (e) {
-      currentBooks.pop();
+      currentBooks.pop(); // rollback local
       toast('Failed to save. Check token permissions (needs repo scope).', 'error');
       console.error(e);
     } finally {
@@ -599,13 +550,12 @@ l<!DOCTYPE html>
     }
     container.innerHTML = '';
     currentBooks.forEach((b, i) => {
-      const meta = [b.author, b.publication].filter(Boolean).join(' · ');
       const item = document.createElement('div');
       item.className = 'book-item';
       item.innerHTML = `
         <div class="book-item-info">
           <div class="book-item-title">${b.title}</div>
-          <div class="book-item-meta">${meta}</div>
+          <div class="book-item-meta">${b.author}</div>
         </div>
         ${b.category ? `<span class="book-item-cat">${b.category}</span>` : ''}
         <button class="delete-btn" title="Delete book">🗑</button>
@@ -642,7 +592,7 @@ l<!DOCTYPE html>
   }
 
   function clearForm() {
-    ['f-title','f-author','f-publication','f-desc','f-link'].forEach(id => document.getElementById(id).value = '');
+    ['f-title','f-author','f-desc','f-link'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('f-category').value = '';
   }
 
