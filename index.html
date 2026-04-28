@@ -654,8 +654,8 @@
 
         const thumbHtml = thumbUrl
           ? `<div class="book-thumb-wrap">
-               <img class="book-thumb" src="${thumbUrl}" alt="${book.title}"
-                 onerror="this.parentElement.innerHTML='<div class=\\"book-thumb-fallback\\">${icon}</div>'">
+               <img class="book-thumb" src="${thumbUrl}" alt="${book.title}">
+               <div class="book-thumb-fallback" style="display:none">${icon}</div>
              </div>`
           : `<div class="book-thumb-fallback">${icon}</div>`;
 
@@ -671,6 +671,13 @@
           <button class="book-btn">📖 Read Online</button>
         `;
         card.querySelector('.book-btn').addEventListener('click', () => openModal(book._index));
+        const img = card.querySelector('.book-thumb');
+        if (img) {
+          img.addEventListener('error', function() {
+            this.style.display = 'none';
+            this.nextElementSibling.style.display = 'flex';
+          });
+        }
         container.appendChild(card);
       });
     }
