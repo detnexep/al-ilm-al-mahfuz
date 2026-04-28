@@ -215,9 +215,30 @@
     .book:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,.5); border-color: var(--gold); }
     .book:hover::before { opacity: 1; }
 
-    .book-icon {
-      font-size: 2rem;
-      line-height: 1;
+    .book-thumb {
+      width: 100%;
+      aspect-ratio: 3/4;
+      object-fit: cover;
+      border-radius: 6px;
+      background: var(--bg);
+      display: block;
+      border: 1px solid var(--border);
+    }
+    .book-thumb-wrap {
+      position: relative;
+      overflow: hidden;
+      border-radius: 6px;
+    }
+    .book-thumb-fallback {
+      width: 100%;
+      aspect-ratio: 3/4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
     }
     .book-category {
       font-family: 'Cinzel', serif;
@@ -426,6 +447,13 @@
       color: var(--muted);
     }
     .btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
+    .btn-copy {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+    .btn-copy:hover { border-color: var(--gold); color: var(--gold); }
+    .btn-copy.copied { border-color: #27ae60; color: #6effa0; }
 
     /* ── Footer ── */
     footer {
@@ -512,6 +540,7 @@
       </div>
       <div id="modal-footer">
         <a id="modal-open-link" class="modal-action btn-primary" href="#" target="_blank">⬡ Open in Google Drive</a>
+        <button id="modal-copy-btn" class="modal-action btn-copy" onclick="copyBookLink()">🔗 Copy Link</button>
         <button class="modal-action btn-secondary" onclick="closeModal()">Close</button>
       </div>
     </div>
@@ -539,13 +568,28 @@
     let allBooks = [];
     let activeCategory = 'all';
     let searchQuery = '';
+    let currentBookIndex = -1;
 
+    // ── Extract Drive file ID from preview link ──
+    function getDriveId(link) {
+      const m = link && link.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+      return m ? m[1] : null;
+    }
+
+    function getThumbnailUrl(link) {
+      const id = getDriveId(link);
+      return id ? `https://drive.google.com/thumbnail?id=${id}&sz=w400` : null;
+    }
+
+    // ── Load books ──
     fetch('books.json')
       .then(r => r.json())
       .then(data => {
         allBooks = data;
         buildFilters(data);
         renderBooks();
+        // Check for hash on load — open book if present
+        handleHash();
       })
       .catch(() => {
         document.getElementById('books').innerHTML =
@@ -580,7 +624,7 @@
 
     function renderBooks() {
       const q = searchQuery;
-      const filtered = allBooks.filter(b => {
+      const filtered = allBooks.map((b, i) => ({ ...b, _index: i })).filter(b => {
         const matchCat = activeCategory === 'all' || b.category === activeCategory;
         const matchQ   = !q ||
           b.title.toLowerCase().includes(q) ||
@@ -603,48 +647,113 @@
       empty.style.display = 'none';
 
       filtered.forEach((book, i) => {
-        const icon = CATEGORY_ICONS[book.category] || CATEGORY_ICONS.default;
-        // Build meta line: author · publication (show both if available)
+        const icon      = CATEGORY_ICONS[book.category] || CATEGORY_ICONS.default;
+        const thumbUrl  = getThumbnailUrl(book.link);
         const metaParts = [book.author, book.publication].filter(Boolean);
         const metaLine  = metaParts.join(' · ');
+
+        const thumbHtml = thumbUrl
+          ? `<div class="book-thumb-wrap">
+               <img class="book-thumb" src="${thumbUrl}" alt="${book.title}"
+                 onerror="this.parentElement.innerHTML='<div class=\\"book-thumb-fallback\\">${icon}</div>'">
+             </div>`
+          : `<div class="book-thumb-fallback">${icon}</div>`;
 
         const card = document.createElement('div');
         card.className = 'book';
         card.style.animationDelay = `${i * 0.05}s`;
         card.innerHTML = `
-          <span class="book-icon">${icon}</span>
+          ${thumbHtml}
           ${book.category ? `<span class="book-category">${book.category}</span>` : ''}
           <div class="book-title">${book.title}</div>
           ${metaLine ? `<div class="book-author">${metaLine}</div>` : ''}
           ${book.description ? `<div class="book-desc">${book.description}</div>` : ''}
           <button class="book-btn">📖 Read Online</button>
         `;
-        card.querySelector('.book-btn').addEventListener('click', () => openModal(book));
+        card.querySelector('.book-btn').addEventListener('click', () => openModal(book._index));
         container.appendChild(card);
       });
     }
 
-    function openModal(book) {
+    // ── Modal ──
+    function openModal(index) {
+      const book = allBooks[index];
+      if (!book) return;
+      currentBookIndex = index;
+
       document.getElementById('modal-title').textContent  = book.title;
-      document.getElementById('modal-author').textContent = book.author;
+      document.getElementById('modal-author').textContent = [book.author, book.publication].filter(Boolean).join(' · ');
       document.getElementById('iframe-loading').style.display = 'flex';
 
       const iframe = document.getElementById('modal-iframe');
       iframe.src = book.link;
 
-      // Build "Open in Drive" link from preview link
       const driveLink = book.link.replace('/preview', '/view');
       document.getElementById('modal-open-link').href = driveLink;
 
+      // Reset copy button
+      const copyBtn = document.getElementById('modal-copy-btn');
+      copyBtn.textContent = '🔗 Copy Link';
+      copyBtn.classList.remove('copied');
+
       document.getElementById('modal-overlay').classList.add('open');
       document.body.style.overflow = 'hidden';
+
+      // Update URL hash without scrolling
+      history.replaceState(null, '', `#book-${index}`);
     }
 
     function closeModal() {
       document.getElementById('modal-overlay').classList.remove('open');
       document.getElementById('modal-iframe').src = '';
       document.body.style.overflow = '';
+      currentBookIndex = -1;
+      // Remove hash from URL
+      history.replaceState(null, '', window.location.pathname + window.location.search);
     }
+
+    function copyBookLink() {
+      const url = `${window.location.origin}${window.location.pathname}#book-${currentBookIndex}`;
+      navigator.clipboard.writeText(url).then(() => {
+        const btn = document.getElementById('modal-copy-btn');
+        btn.textContent = '✓ Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = '🔗 Copy Link';
+          btn.classList.remove('copied');
+        }, 2000);
+      }).catch(() => {
+        // Fallback for browsers that block clipboard
+        const ta = document.createElement('textarea');
+        ta.value = `${window.location.origin}${window.location.pathname}#book-${currentBookIndex}`;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        const btn = document.getElementById('modal-copy-btn');
+        btn.textContent = '✓ Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = '🔗 Copy Link';
+          btn.classList.remove('copied');
+        }, 2000);
+      });
+    }
+
+    // ── Hash routing ──
+    function handleHash() {
+      const hash = window.location.hash;
+      const match = hash.match(/^#book-(\d+)$/);
+      if (match) {
+        const index = parseInt(match[1], 10);
+        if (index >= 0 && index < allBooks.length) {
+          openModal(index);
+        }
+      }
+    }
+
+    // Handle browser back/forward
+    window.addEventListener('hashchange', handleHash);
 
     // Close on overlay click
     document.getElementById('modal-overlay').addEventListener('click', e => {
