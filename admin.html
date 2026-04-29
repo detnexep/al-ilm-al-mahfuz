@@ -276,6 +276,63 @@ l<!DOCTYPE html>
     }
     .delete-btn:hover { border-color: var(--error); color: #ff8080; background: rgba(192,57,43,.1); }
 
+    .edit-btn {
+      background: none;
+      border: 1px solid transparent;
+      color: #3a7ca5;
+      cursor: pointer;
+      padding: 5px 8px;
+      border-radius: 6px;
+      font-size: .9rem;
+      transition: all .2s;
+      flex-shrink: 0;
+    }
+    .edit-btn:hover { border-color: #3a7ca5; color: #90d0ff; background: rgba(58,124,165,.1); }
+
+    /* ── Edit Modal ── */
+    #edit-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.75);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    #edit-overlay.open { display: flex; }
+    #edit-modal {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px;
+      width: 100%;
+      max-width: 540px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    #edit-modal .card-title { margin-bottom: 18px; }
+    .edit-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .edit-actions .btn-primary { margin-top: 0; }
+    .btn-cancel {
+      flex: 1;
+      padding: 13px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--muted);
+      font-family: 'Cinzel', serif;
+      font-size: .82rem;
+      letter-spacing: .1em;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .btn-cancel:hover { border-color: var(--gold); color: var(--gold); }
+
     #empty-list {
       text-align: center;
       color: var(--muted);
@@ -403,6 +460,57 @@ l<!DOCTYPE html>
   </div>
 
 </main>
+
+<!-- Edit Modal -->
+<div id="edit-overlay">
+  <div id="edit-modal">
+    <div class="card-title">✏️ Edit Book</div>
+
+    <div class="field">
+      <label>Title <span>*</span></label>
+      <input type="text" id="e-title"/>
+    </div>
+    <div class="field">
+      <label>Author</label>
+      <input type="text" id="e-author"/>
+    </div>
+    <div class="field">
+      <label>Publication</label>
+      <input type="text" id="e-publication"/>
+    </div>
+    <div class="field">
+      <label>Category</label>
+      <select id="e-category">
+        <option value="">— Select Category —</option>
+        <option>Fatawa</option>
+        <option>Hadith</option>
+        <option>Fiqh</option>
+        <option>Aqeedah</option>
+        <option>Seerah</option>
+        <option>Biography</option>
+        <option>Arabic</option>
+        <option>History</option>
+        <option>Other</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Description</label>
+      <textarea id="e-desc"></textarea>
+    </div>
+    <div class="field">
+      <label>Google Drive Link <span>*</span></label>
+      <div class="drive-row">
+        <input type="text" id="e-link"/>
+        <button class="extract-btn" onclick="extractEditLink()">Auto Fix</button>
+      </div>
+    </div>
+
+    <div class="edit-actions">
+      <button class="btn-cancel" onclick="closeEditModal()">Cancel</button>
+      <button class="btn-primary" id="save-edit-btn" style="flex:2" onclick="saveEdit()">💾 Save Changes</button>
+    </div>
+  </div>
+</div>
 
 <!-- Toast -->
 <div id="toast"></div>
@@ -608,8 +716,10 @@ l<!DOCTYPE html>
           <div class="book-item-meta">${meta}</div>
         </div>
         ${b.category ? `<span class="book-item-cat">${b.category}</span>` : ''}
+        <button class="edit-btn" title="Edit book">✏️</button>
         <button class="delete-btn" title="Delete book">🗑</button>
       `;
+      item.querySelector('.edit-btn').addEventListener('click', () => openEditModal(i));
       item.querySelector('.delete-btn').addEventListener('click', () => deleteBook(i));
       container.appendChild(item);
     });
@@ -645,6 +755,89 @@ l<!DOCTYPE html>
     ['f-title','f-author','f-publication','f-desc','f-link'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('f-category').value = '';
   }
+
+  // ── Edit book ─────────────────────────────────────────
+  let editingIndex = -1;
+
+  function openEditModal(index) {
+    editingIndex = index;
+    const b = currentBooks[index];
+    document.getElementById('e-title').value       = b.title       || '';
+    document.getElementById('e-author').value      = b.author      || '';
+    document.getElementById('e-publication').value = b.publication || '';
+    document.getElementById('e-category').value    = b.category    || '';
+    document.getElementById('e-desc').value        = b.description || '';
+    document.getElementById('e-link').value        = b.link        || '';
+    document.getElementById('edit-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeEditModal() {
+    document.getElementById('edit-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+    editingIndex = -1;
+  }
+
+  function extractEditLink() {
+    const input = document.getElementById('e-link');
+    const fixed = toPreviewLink(input.value.trim());
+    if (fixed) { input.value = fixed; toast('Link converted ✓', 'success'); }
+    else toast('Could not extract file ID. Paste a valid Google Drive share link.', 'error');
+  }
+
+  async function saveEdit() {
+    if (editingIndex < 0) return;
+    const title       = document.getElementById('e-title').value.trim();
+    const author      = document.getElementById('e-author').value.trim();
+    const publication = document.getElementById('e-publication').value.trim();
+    const cat         = document.getElementById('e-category').value;
+    const desc        = document.getElementById('e-desc').value.trim();
+    const link        = document.getElementById('e-link').value.trim();
+
+    if (!title)                  return toast('Title is required.', 'error');
+    if (!author && !publication) return toast('Enter at least an Author or Publication.', 'error');
+    if (!link)                   return toast('Google Drive link is required.', 'error');
+
+    const previewLink = toPreviewLink(link);
+    if (!previewLink) return toast('Invalid Google Drive link. Use Auto Fix.', 'error');
+
+    const btn = document.getElementById('save-edit-btn');
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+
+    const original = { ...currentBooks[editingIndex] };
+    const updated = { title };
+    if (author)      updated.author      = author;
+    if (publication) updated.publication = publication;
+    if (cat)         updated.category    = cat;
+    if (desc)        updated.description = desc;
+    updated.link = previewLink;
+
+    currentBooks[editingIndex] = updated;
+
+    try {
+      await putFile(currentBooks, currentSha);
+      const file = await getFile();
+      currentSha = file.sha;
+      renderBookList();
+      populatePublicationList();
+      closeEditModal();
+      toast(`"${title}" updated successfully!`, 'success');
+    } catch (e) {
+      currentBooks[editingIndex] = original; // rollback
+      toast('Failed to save. Check token permissions.', 'error');
+      console.error(e);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '💾 Save Changes';
+    }
+  }
+
+  // Close edit modal on overlay click or Escape
+  document.getElementById('edit-overlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('edit-overlay')) closeEditModal();
+  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeEditModal(); });
 
   let toastTimer;
   function toast(msg, type = 'info') {
