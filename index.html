@@ -455,6 +455,91 @@
     .btn-copy:hover { border-color: var(--gold); color: var(--gold); }
     .btn-copy.copied { border-color: #27ae60; color: #6effa0; }
 
+    /* ── Contact Us ── */
+    #contact {
+      position: relative;
+      z-index: 1;
+      max-width: 700px;
+      margin: 0 auto 80px;
+      padding: 0 20px;
+    }
+    .section-heading {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .section-heading .label {
+      font-family: 'Cinzel', serif;
+      font-size: .68rem;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: var(--gold);
+      opacity: .8;
+      display: block;
+      margin-bottom: 8px;
+    }
+    .section-heading h2 {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(1.3rem, 3.5vw, 1.9rem);
+      font-weight: 700;
+      color: var(--gold2);
+      line-height: 1.2;
+    }
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    .contact-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      text-align: center;
+      text-decoration: none;
+      transition: all .25s;
+    }
+    .contact-card:hover {
+      border-color: var(--gold);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 28px rgba(0,0,0,.4);
+    }
+    .contact-card .c-icon { font-size: 1.8rem; line-height: 1; }
+    .contact-card .c-title {
+      font-family: 'Cinzel', serif;
+      font-size: .82rem;
+      font-weight: 600;
+      letter-spacing: .1em;
+      color: var(--gold2);
+    }
+    .contact-card .c-sub {
+      font-size: .88rem;
+      color: var(--muted);
+      font-style: italic;
+      line-height: 1.4;
+    }
+    .contact-note {
+      background: rgba(201,168,76,.05);
+      border: 1px solid rgba(201,168,76,.15);
+      border-radius: 8px;
+      padding: 16px 20px;
+      text-align: center;
+    }
+    .contact-note p {
+      color: var(--muted);
+      font-size: .92rem;
+      font-style: italic;
+      line-height: 1.6;
+    }
+    .contact-note strong { color: var(--gold2); font-style: normal; }
+    @media (max-width: 500px) {
+      .contact-grid { grid-template-columns: 1fr; }
+    }
+
     /* ── Footer ── */
     footer {
       position: relative;
@@ -545,6 +630,45 @@
       </div>
     </div>
   </div>
+
+  <!-- CONTACT US -->
+  <section id="contact">
+    <div style="display:flex;align-items:center;gap:12px;max-width:300px;margin:0 auto 36px">
+      <div style="flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)"></div>
+      <span style="color:var(--gold);font-size:.9rem;opacity:.6">✦</span>
+      <div style="flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)"></div>
+    </div>
+    <div class="section-heading">
+      <span class="label">Get in Touch</span>
+      <h2>Contact Us</h2>
+    </div>
+    <div class="contact-grid">
+      <a class="contact-card" href="https://t.me/+527te0qbiFk4MDVl" target="_blank">
+        <span class="c-icon">
+          <svg width="36" height="36" viewBox="0 0 240 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="120" cy="120" r="120" fill="url(#tg-grad)"/>
+            <path d="M97.5 140.5l-3.8 26.8c5.4 0 7.7-2.3 10.5-5l25.2-24 52.2 38.4c9.6 5.3 16.4 2.5 19-8.9l34.4-161.8c3.1-14.5-5.2-20.2-14.5-16.6L11.2 92.6c-14.1 5.5-13.9 13.4-2.4 16.9l50.4 15.7 117-73.6c5.5-3.5 10.5-1.6 6.4 1.9L97.5 140.5z" fill="white"/>
+            <defs>
+              <linearGradient id="tg-grad" x1="120" y1="0" x2="120" y2="240" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#2AABEE"/>
+                <stop offset="1" stop-color="#229ED9"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </span>
+        <span class="c-title">Telegram</span>
+        <span class="c-sub">Join our channel for updates and new additions</span>
+      </a>
+      <a class="contact-card" href="mailto:askibidimogger@proton.me">
+        <span class="c-icon">✉️</span>
+        <span class="c-title">Email Us</span>
+        <span class="c-sub">askibidimogger@proton.me</span>
+      </a>
+    </div>
+    <div class="contact-note">
+      <p>Want to <strong>suggest a book</strong> or report a broken link?<br/>We welcome all contributions to preserve Islamic knowledge.</p>
+    </div>
+  </section>
 
   <!-- FOOTER -->
   <footer>
