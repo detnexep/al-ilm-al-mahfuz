@@ -1,4 +1,4 @@
-l<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -666,7 +666,7 @@ l<!DOCTYPE html>
       toast('Loading books…', 'info');
       const file = await getFile();
       currentSha   = file.sha;
-      currentBooks = JSON.parse(decodeURIComponent(escape(atob(file.content))));
+      currentBooks = JSON.parse(decodeURIComponent(escape(atob(file.content.replace(/\n/g, '')))));
       renderBookList();
       populatePublicationList();
       toast(`Loaded ${currentBooks.length} books.`, 'success');
@@ -948,7 +948,7 @@ l<!DOCTYPE html>
     try {
       const file = await getPubFile();
       currentPubSha = file.sha;
-      currentPubs = JSON.parse(decodeURIComponent(escape(atob(file.content))));
+      currentPubs = JSON.parse(decodeURIComponent(escape(atob(file.content.replace(/\n/g, '')))));
       renderPubList();
     } catch (e) {
       console.error('Could not load publications.json', e);
