@@ -459,6 +459,49 @@ l<!DOCTYPE html>
       <div id="empty-list">Save your config above to load books.</div>
     </div>
   </div>
+  <!-- STEP 4: Add Publication -->
+  <div class="card">
+    <div class="card-title">④ Add New Publication</div>
+
+    <div class="field">
+      <label>Name <span>*</span></label>
+      <input type="text" id="p-name" placeholder="e.g. Fatawa Archive"/>
+    </div>
+    <div class="field">
+      <label>Arabic / Bengali Name</label>
+      <input type="text" id="p-arabic" placeholder="e.g. فتوى أرشيف"/>
+    </div>
+    <div class="field">
+      <label>Region</label>
+      <input type="text" id="p-region" placeholder="e.g. Bangladesh"/>
+    </div>
+    <div class="field">
+      <label>Description</label>
+      <textarea id="p-desc" placeholder="Short info about this publication (optional)"></textarea>
+    </div>
+    <div class="field">
+      <label>Logo (Google Drive Link)</label>
+      <div class="drive-row">
+        <input type="text" id="p-logo" placeholder="Paste Google Drive share link for logo image"/>
+        <button class="extract-btn" onclick="extractPubLogo()">Auto Fix</button>
+      </div>
+      <p class="hint">Upload the logo image to Google Drive, share it, paste the link here.</p>
+    </div>
+    <div class="field">
+      <label>Website</label>
+      <input type="text" id="p-website" placeholder="https://example.com (optional)"/>
+    </div>
+
+    <button class="btn-primary" id="add-pub-btn" onclick="addPublication()">＋ Add Publication</button>
+  </div>
+
+  <!-- STEP 5: Manage publications -->
+  <div class="card">
+    <div class="card-title">⑤ Current Publications</div>
+    <div id="pub-list">
+      <div id="empty-pub-list">Save your config above to load publications.</div>
+    </div>
+  </div>
 
 </main>
 
@@ -510,6 +553,29 @@ l<!DOCTYPE html>
     <div class="edit-actions">
       <button class="btn-cancel" onclick="closeEditModal()">Cancel</button>
       <button class="btn-primary" id="save-edit-btn" style="flex:2" onclick="saveEdit()">💾 Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Publication Modal -->
+<div id="edit-pub-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:28px;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;">
+    <div class="card-title">✏️ Edit Publication</div>
+    <div class="field"><label>Name <span>*</span></label><input type="text" id="ep-name"/></div>
+    <div class="field"><label>Arabic / Bengali Name</label><input type="text" id="ep-arabic"/></div>
+    <div class="field"><label>Region</label><input type="text" id="ep-region"/></div>
+    <div class="field"><label>Description</label><textarea id="ep-desc"></textarea></div>
+    <div class="field">
+      <label>Logo (Google Drive Link)</label>
+      <div class="drive-row">
+        <input type="text" id="ep-logo"/>
+        <button class="extract-btn" onclick="extractEditPubLogo()">Auto Fix</button>
+      </div>
+    </div>
+    <div class="field"><label>Website</label><input type="text" id="ep-website"/></div>
+    <div class="edit-actions">
+      <button class="btn-cancel" onclick="closeEditPubModal()">Cancel</button>
+      <button class="btn-primary" id="save-pub-btn" style="flex:2" onclick="saveEditPublication()">💾 Save Changes</button>
     </div>
   </div>
 </div>
@@ -604,6 +670,7 @@ l<!DOCTYPE html>
       renderBookList();
       populatePublicationList();
       toast(`Loaded ${currentBooks.length} books.`, 'success');
+      loadPublications();
     } catch (e) {
       toast('Failed. See error details below.', 'error');
       showError(e.message);
@@ -844,8 +911,217 @@ l<!DOCTYPE html>
   });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeEditModal(); });
 
-  let toastTimer;
-  function toast(msg, type = 'info') {
+  // ── Publications ──────────────────────────────────────
+  let currentPubs = [];
+  let currentPubSha = '';
+  let editingPubIndex = -1;
+
+  function slugify(str) {
+    return str.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
+  }
+
+  async function getPubFile() {
+    const { user, repo, token } = getConfig();
+    const res = await fetch(`${API}/repos/${user}/${repo}/contents/publications.json`, {
+      headers: { Authorization: `token ${token}`, Accept: 'application/vnd.github.v3+json' }
+    });
+    if (res.status === 404) return { content: btoa('[]'), sha: '' };
+    if (!res.ok) throw new Error(`GitHub error ${res.status}: ${await res.text()}`);
+    return res.json();
+  }
+
+  async function putPubFile(pubs, sha) {
+    const { user, repo, token } = getConfig();
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(pubs, null, 2))));
+    const body = { message: `📚 Update publications.json — ${new Date().toLocaleDateString()}`, content };
+    if (sha) body.sha = sha;
+    const res = await fetch(`${API}/repos/${user}/${repo}/contents/publications.json`, {
+      method: 'PUT',
+      headers: { Authorization: `token ${token}`, Accept: 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) throw new Error(`GitHub error ${res.status}: ${await res.text()}`);
+    return res.json();
+  }
+
+  async function loadPublications() {
+    try {
+      const file = await getPubFile();
+      currentPubSha = file.sha;
+      currentPubs = JSON.parse(decodeURIComponent(escape(atob(file.content))));
+      renderPubList();
+    } catch (e) {
+      console.error('Could not load publications.json', e);
+    }
+  }
+
+  function toDrivePreview(url) {
+    if (!url) return url;
+    const m1 = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+    const m2 = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+    const id = m1 ? m1[1] : m2 ? m2[1] : null;
+    return id ? `https://drive.google.com/file/d/${id}/preview` : url;
+  }
+
+  function extractPubLogo() {
+    const input = document.getElementById('p-logo');
+    const fixed = toDrivePreview(input.value.trim());
+    if (fixed) { input.value = fixed; toast('Logo link converted ✓', 'success'); }
+    else toast('Could not extract file ID.', 'error');
+  }
+  function extractEditPubLogo() {
+    const input = document.getElementById('ep-logo');
+    const fixed = toDrivePreview(input.value.trim());
+    if (fixed) { input.value = fixed; toast('Logo link converted ✓', 'success'); }
+    else toast('Could not extract file ID.', 'error');
+  }
+
+  async function addPublication() {
+    const name    = document.getElementById('p-name').value.trim();
+    const arabic  = document.getElementById('p-arabic').value.trim();
+    const region  = document.getElementById('p-region').value.trim();
+    const desc    = document.getElementById('p-desc').value.trim();
+    const logo    = document.getElementById('p-logo').value.trim();
+    const website = document.getElementById('p-website').value.trim();
+
+    if (!name) return toast('Publication name is required.', 'error');
+
+    const btn = document.getElementById('add-pub-btn');
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+
+    const pub = { id: slugify(name), name };
+    if (arabic)  pub.arabic  = arabic;
+    if (region)  pub.region  = region;
+    if (desc)    pub.description = desc;
+    if (logo)    pub.logo    = toDrivePreview(logo);
+    if (website) pub.website = website;
+
+    currentPubs.push(pub);
+    try {
+      await putPubFile(currentPubs, currentPubSha);
+      const file = await getPubFile();
+      currentPubSha = file.sha;
+      renderPubList();
+      clearPubForm();
+      toast(`"${name}" added!`, 'success');
+    } catch(e) {
+      currentPubs.pop();
+      toast('Failed to save publication.', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '＋ Add Publication';
+    }
+  }
+
+  function clearPubForm() {
+    ['p-name','p-arabic','p-region','p-desc','p-logo','p-website'].forEach(id => document.getElementById(id).value = '');
+  }
+
+  async function deletePublication(index) {
+    if (!confirm(`Delete "${currentPubs[index].name}"?`)) return;
+    const removed = currentPubs.splice(index, 1)[0];
+    try {
+      await putPubFile(currentPubs, currentPubSha);
+      const file = await getPubFile();
+      currentPubSha = file.sha;
+      renderPubList();
+      toast(`"${removed.name}" deleted.`, 'success');
+    } catch(e) {
+      currentPubs.splice(index, 0, removed);
+      toast('Failed to delete.', 'error');
+    }
+  }
+
+  function renderPubList() {
+    const container = document.getElementById('pub-list');
+    if (currentPubs.length === 0) {
+      container.innerHTML = '<div id="empty-pub-list">No publications yet. Add one above!</div>';
+      return;
+    }
+    container.innerHTML = '';
+    currentPubs.forEach((p, i) => {
+      const item = document.createElement('div');
+      item.className = 'book-item';
+      item.innerHTML = `
+        <div class="book-item-info">
+          <div class="book-item-title">${p.name}</div>
+          <div class="book-item-meta">${[p.arabic, p.region].filter(Boolean).join(' · ')}</div>
+        </div>
+        <button class="edit-btn" title="Edit">✏️</button>
+        <button class="delete-btn" title="Delete">🗑</button>
+      `;
+      item.querySelector('.edit-btn').addEventListener('click', () => openEditPubModal(i));
+      item.querySelector('.delete-btn').addEventListener('click', () => deletePublication(i));
+      container.appendChild(item);
+    });
+  }
+
+  function openEditPubModal(index) {
+    editingPubIndex = index;
+    const p = currentPubs[index];
+    document.getElementById('ep-name').value    = p.name        || '';
+    document.getElementById('ep-arabic').value  = p.arabic      || '';
+    document.getElementById('ep-region').value  = p.region      || '';
+    document.getElementById('ep-desc').value    = p.description || '';
+    document.getElementById('ep-logo').value    = p.logo        || '';
+    document.getElementById('ep-website').value = p.website     || '';
+    const overlay = document.getElementById('edit-pub-overlay');
+    overlay.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeEditPubModal() {
+    document.getElementById('edit-pub-overlay').style.display = 'none';
+    document.body.style.overflow = '';
+    editingPubIndex = -1;
+  }
+
+  async function saveEditPublication() {
+    if (editingPubIndex < 0) return;
+    const name    = document.getElementById('ep-name').value.trim();
+    const arabic  = document.getElementById('ep-arabic').value.trim();
+    const region  = document.getElementById('ep-region').value.trim();
+    const desc    = document.getElementById('ep-desc').value.trim();
+    const logo    = document.getElementById('ep-logo').value.trim();
+    const website = document.getElementById('ep-website').value.trim();
+
+    if (!name) return toast('Name is required.', 'error');
+
+    const btn = document.getElementById('save-pub-btn');
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+
+    const original = { ...currentPubs[editingPubIndex] };
+    const updated = { id: slugify(name), name };
+    if (arabic)  updated.arabic      = arabic;
+    if (region)  updated.region      = region;
+    if (desc)    updated.description = desc;
+    if (logo)    updated.logo        = toDrivePreview(logo);
+    if (website) updated.website     = website;
+
+    currentPubs[editingPubIndex] = updated;
+    try {
+      await putPubFile(currentPubs, currentPubSha);
+      const file = await getPubFile();
+      currentPubSha = file.sha;
+      renderPubList();
+      closeEditPubModal();
+      toast(`"${name}" updated!`, 'success');
+    } catch(e) {
+      currentPubs[editingPubIndex] = original;
+      toast('Failed to save.', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '💾 Save Changes';
+    }
+  }
+
+  document.getElementById('edit-pub-overlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('edit-pub-overlay')) closeEditPubModal();
+  });
+
+
     const el = document.getElementById('toast');
     el.textContent = msg;
     el.className = type;
