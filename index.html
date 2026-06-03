@@ -164,7 +164,20 @@
       font-weight: 600;
     }
 
-    /* ── Stats bar ── */
+    .filter-btn .count {
+      display: inline-block;
+      margin-left: 5px;
+      font-size: .65rem;
+      background: rgba(201,168,76,.15);
+      border-radius: 10px;
+      padding: 1px 6px;
+      font-family: 'Crimson Text', serif;
+      font-style: normal;
+      letter-spacing: 0;
+    }
+    .filter-btn.active .count {
+      background: rgba(0,0,0,.2);
+    }
     #stats-bar {
       position: relative;
       z-index: 1;
@@ -724,11 +737,11 @@
     fetch('books.json')
       .then(r => r.json())
       .then(data => {
-        allBooks = data;
-        buildFilters(data);
+        allBooks = data.slice().reverse();
+        buildFilters(allBooks);
         renderBooks();
-        // Check for hash on load — open book if present
         handleHash();
+        silentLinkCheck(allBooks);
       })
       .catch(() => {
         document.getElementById('books').innerHTML =
@@ -738,11 +751,17 @@
     function buildFilters(data) {
       const cats = [...new Set(data.map(b => b.category).filter(Boolean))].sort();
       const container = document.getElementById('filters');
+
+      // Update All Books count
+      container.querySelector('[data-cat="all"]').innerHTML =
+        `All Books <span class="count">${data.length}</span>`;
+
       cats.forEach(cat => {
+        const count = data.filter(b => b.category === cat).length;
         const btn = document.createElement('button');
         btn.className = 'filter-btn';
         btn.dataset.cat = cat;
-        btn.textContent = cat;
+        btn.innerHTML = `${cat} <span class="count">${count}</span>`;
         btn.onclick = () => setCategory(cat);
         container.appendChild(btn);
       });
@@ -818,6 +837,33 @@
           });
         }
         container.appendChild(card);
+      });
+    }
+
+    // ── Silent broken link checker ──
+    function silentLinkCheck(books) {
+      const broken = [];
+      books.forEach((book, i) => {
+        const thumbUrl = getThumbnailUrl(book.link);
+        if (!thumbUrl) return;
+        const img = new Image();
+        img.onload = () => {
+          // Remove from broken if it was previously flagged
+          const stored = JSON.parse(localStorage.getItem('brokenLinks') || '[]');
+          const updated = stored.filter(b => b.link !== book.link);
+          localStorage.setItem('brokenLinks', JSON.stringify(updated));
+        };
+        img.onerror = () => {
+          broken.push({ title: book.title, link: book.link, index: i });
+          const stored = JSON.parse(localStorage.getItem('brokenLinks') || '[]');
+          const already = stored.find(b => b.link === book.link);
+          if (!already) {
+            stored.push({ title: book.title, link: book.link });
+            localStorage.setItem('brokenLinks', JSON.stringify(stored));
+          }
+          console.warn(`[Al Ilm] Possibly broken link — "${book.title}":`, book.link);
+        };
+        img.src = thumbUrl;
       });
     }
 
