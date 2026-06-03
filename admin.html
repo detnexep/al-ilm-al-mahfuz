@@ -1121,7 +1121,8 @@
     if (e.target === document.getElementById('edit-pub-overlay')) closeEditPubModal();
   });
 
-
+  let toastTimer;
+  function toast(msg, type = 'info') {
     const el = document.getElementById('toast');
     el.textContent = msg;
     el.className = type;
