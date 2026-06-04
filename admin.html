@@ -5,39 +5,62 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Admin — Al Ilm Al Mahfuz</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 
   <style>
     :root {
-      --bg:      #0c1a14;
-      --bg2:     #111f18;
-      --card:    #152318;
-      --border:  #2a4a32;
-      --gold:    #c9a84c;
-      --gold2:   #e8c96a;
-      --text:    #f0e6d3;
-      --muted:   #8aab96;
-      --accent:  #1f6b42;
-      --error:   #c0392b;
-      --success: #27ae60;
+      --bg:       #07080f;
+      --bg2:      #0d0e1a;
+      --card:     #0f1020;
+      --card2:    #131425;
+      --border:   #1e2040;
+      --border2:  #2a2d55;
+      --purple:   #7c3aed;
+      --purple2:  #a855f7;
+      --teal:     #0d9488;
+      --teal2:    #2dd4bf;
+      --cyan:     #06b6d4;
+      --pink:     #ec4899;
+      --text:     #e2e8f0;
+      --muted:    #64748b;
+      --muted2:   #94a3b8;
+      --error:    #ef4444;
+      --success:  #10b981;
+      --glow-p:   rgba(124,58,237,.25);
+      --glow-t:   rgba(13,148,136,.2);
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
 
     body {
-      font-family: 'Crimson Text', Georgia, serif;
+      font-family: 'Inter', system-ui, sans-serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
+      overflow-x: hidden;
     }
 
+    /* ── Aurora background blobs ── */
     body::before {
       content: '';
       position: fixed;
       inset: 0;
-      background-image:
-        repeating-linear-gradient(45deg, rgba(201,168,76,.04) 0, rgba(201,168,76,.04) 1px, transparent 1px, transparent 40px),
-        repeating-linear-gradient(-45deg, rgba(201,168,76,.04) 0, rgba(201,168,76,.04) 1px, transparent 1px, transparent 40px);
+      background:
+        radial-gradient(ellipse 80vw 60vh at 10% -10%, rgba(124,58,237,.18) 0%, transparent 60%),
+        radial-gradient(ellipse 60vw 50vh at 90% 110%, rgba(13,148,136,.15) 0%, transparent 60%),
+        radial-gradient(ellipse 40vw 40vh at 50% 50%, rgba(236,72,153,.06) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Noise texture overlay ── */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      opacity: .025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
       pointer-events: none;
       z-index: 0;
     }
@@ -47,35 +70,68 @@
       position: relative;
       z-index: 1;
       text-align: center;
-      padding: 36px 20px 24px;
+      padding: 40px 20px 28px;
       border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(124,58,237,.08) 0%, transparent 100%);
     }
+
+    .header-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: .7rem;
+      font-weight: 600;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--teal2);
+      background: rgba(13,148,136,.1);
+      border: 1px solid rgba(13,148,136,.25);
+      border-radius: 20px;
+      padding: 4px 14px;
+      margin-bottom: 14px;
+    }
+    .header-badge::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--teal2);
+      box-shadow: 0 0 6px var(--teal2);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: .4; }
+    }
+
     header h1 {
-      font-family: 'Cinzel', serif;
-      font-size: clamp(1.2rem, 4vw, 1.8rem);
-      color: var(--gold2);
-      letter-spacing: .1em;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(1.4rem, 4vw, 2rem);
+      font-weight: 700;
+      letter-spacing: -.02em;
+      background: linear-gradient(135deg, #a78bfa 0%, var(--teal2) 50%, var(--cyan) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.1;
     }
     header p {
-      color: var(--muted);
-      font-style: italic;
-      margin-top: 4px;
-      font-size: .9rem;
+      color: var(--muted2);
+      font-size: .88rem;
+      margin-top: 6px;
     }
     .back-link {
       display: inline-block;
-      margin-top: 12px;
-      font-family: 'Cinzel', serif;
-      font-size: .72rem;
-      letter-spacing: .1em;
+      margin-top: 14px;
+      font-size: .75rem;
+      font-weight: 500;
       color: var(--muted);
       text-decoration: none;
       border: 1px solid var(--border);
-      padding: 5px 14px;
+      padding: 5px 16px;
       border-radius: 20px;
       transition: all .2s;
     }
-    .back-link:hover { color: var(--gold); border-color: var(--gold); }
+    .back-link:hover { color: var(--teal2); border-color: rgba(13,148,136,.4); }
 
     /* ── Layout ── */
     main {
@@ -86,23 +142,44 @@
       padding: 0 20px;
       display: flex;
       flex-direction: column;
-      gap: 24px;
+      gap: 20px;
     }
 
     /* ── Section card ── */
     .card {
-      background: var(--card);
+      background: rgba(15,16,32,.8);
       border: 1px solid var(--border);
-      border-radius: 12px;
+      border-radius: 16px;
       padding: 24px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      position: relative;
+      overflow: hidden;
+      transition: border-color .25s;
     }
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(124,58,237,.5), rgba(13,148,136,.5), transparent);
+      opacity: 0;
+      transition: opacity .25s;
+    }
+    .card:focus-within::before,
+    .card:hover::before { opacity: 1; }
+
     .card-title {
-      font-family: 'Cinzel', serif;
-      font-size: .8rem;
-      letter-spacing: .14em;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: .75rem;
+      font-weight: 600;
+      letter-spacing: .1em;
       text-transform: uppercase;
-      color: var(--gold);
-      margin-bottom: 18px;
+      background: linear-gradient(90deg, var(--purple2), var(--teal2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 20px;
       display: flex;
       align-items: center;
       gap: 10px;
@@ -111,7 +188,7 @@
       content: '';
       flex: 1;
       height: 1px;
-      background: var(--border);
+      background: linear-gradient(90deg, var(--border2), transparent);
     }
 
     /* ── Form fields ── */
@@ -120,86 +197,97 @@
 
     label {
       display: block;
-      font-family: 'Cinzel', serif;
-      font-size: .7rem;
-      letter-spacing: .12em;
+      font-size: .72rem;
+      font-weight: 600;
+      letter-spacing: .06em;
       text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 6px;
+      color: var(--muted2);
+      margin-bottom: 7px;
     }
-    label span { color: var(--error); margin-left: 2px; }
+    label span { color: var(--pink); margin-left: 2px; }
 
     input, select, textarea {
       width: 100%;
       padding: 11px 14px;
-      background: var(--bg2);
+      background: rgba(7,8,15,.6);
       border: 1px solid var(--border);
-      border-radius: 7px;
+      border-radius: 10px;
       color: var(--text);
-      font-family: 'Crimson Text', serif;
-      font-size: 1rem;
+      font-family: 'Inter', sans-serif;
+      font-size: .92rem;
       outline: none;
-      transition: border-color .2s;
+      transition: border-color .2s, box-shadow .2s, background .2s;
       -webkit-appearance: none;
     }
     input::placeholder, textarea::placeholder { color: var(--muted); }
-    input:focus, select:focus, textarea:focus { border-color: var(--gold); }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--purple2);
+      background: rgba(124,58,237,.05);
+      box-shadow: 0 0 0 3px rgba(124,58,237,.12);
+    }
     select { cursor: pointer; }
-    select option { background: var(--bg2); }
-    textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+    select option { background: #0d0e1a; }
+    textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
 
     .hint {
-      font-size: .82rem;
+      font-size: .78rem;
       color: var(--muted);
-      font-style: italic;
-      margin-top: 5px;
+      margin-top: 6px;
+      line-height: 1.5;
     }
-    .hint a { color: var(--gold); }
+    .hint a { color: var(--teal2); text-decoration: none; }
+    .hint a:hover { text-decoration: underline; }
 
-    /* Drive link helper */
+    /* Drive link row */
     .drive-row { display: flex; gap: 8px; }
     .drive-row input { flex: 1; }
     .extract-btn {
       padding: 11px 14px;
-      background: rgba(201,168,76,.1);
-      border: 1px solid rgba(201,168,76,.3);
-      border-radius: 7px;
-      color: var(--gold);
-      font-family: 'Cinzel', serif;
-      font-size: .7rem;
-      letter-spacing: .08em;
+      background: rgba(13,148,136,.1);
+      border: 1px solid rgba(13,148,136,.3);
+      border-radius: 10px;
+      color: var(--teal2);
+      font-family: 'Inter', sans-serif;
+      font-size: .75rem;
+      font-weight: 600;
       cursor: pointer;
       white-space: nowrap;
       transition: all .2s;
     }
-    .extract-btn:hover { background: rgba(201,168,76,.2); }
+    .extract-btn:hover { background: rgba(13,148,136,.2); border-color: var(--teal2); }
 
     /* ── Buttons ── */
     .btn-primary {
       width: 100%;
-      padding: 13px;
-      background: linear-gradient(135deg, var(--accent), #145733);
-      border: 1px solid rgba(201,168,76,.25);
-      border-radius: 8px;
-      color: var(--gold2);
-      font-family: 'Cinzel', serif;
-      font-size: .82rem;
+      padding: 12px;
+      background: linear-gradient(135deg, var(--purple) 0%, var(--teal) 100%);
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: .85rem;
       font-weight: 600;
-      letter-spacing: .1em;
+      letter-spacing: .04em;
       cursor: pointer;
-      transition: all .2s;
+      transition: all .25s;
       margin-top: 4px;
+      position: relative;
+      overflow: hidden;
     }
-    .btn-primary:hover:not(:disabled) { border-color: var(--gold); filter: brightness(1.1); }
-    .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
-
-    .btn-danger {
-      background: linear-gradient(135deg, #7b1f1f, #5a1515);
-      border-color: rgba(192,57,43,.3);
-      color: #f5a49a;
+    .btn-primary::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,.15), transparent);
+      opacity: 0;
+      transition: opacity .2s;
     }
+    .btn-primary:hover:not(:disabled)::after { opacity: 1; }
+    .btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(124,58,237,.35); }
+    .btn-primary:active:not(:disabled) { transform: translateY(0); }
+    .btn-primary:disabled { opacity: .4; cursor: not-allowed; }
 
-    /* ── Status toast ── */
+    /* ── Toast ── */
     #toast {
       display: none;
       position: fixed;
@@ -208,159 +296,213 @@
       transform: translateX(-50%);
       z-index: 999;
       padding: 12px 24px;
-      border-radius: 8px;
-      font-family: 'Cinzel', serif;
-      font-size: .78rem;
-      letter-spacing: .08em;
-      animation: fadeUp .3s ease;
+      border-radius: 10px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: .8rem;
+      font-weight: 500;
+      letter-spacing: .04em;
+      animation: toastIn .3s ease;
       max-width: 90vw;
       text-align: center;
+      backdrop-filter: blur(12px);
     }
-    #toast.success { background: #0f3d22; border: 1px solid var(--success); color: #6effa0; }
-    #toast.error   { background: #3d0f0f; border: 1px solid var(--error);   color: #ff9090; }
-    #toast.info    { background: #1a2f3a; border: 1px solid #3a7ca5;        color: #90d0ff; }
-
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateX(-50%) translateY(12px); }
       to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+    #toast.success {
+      background: rgba(16,185,129,.15);
+      border: 1px solid rgba(16,185,129,.4);
+      color: #6ee7b7;
+      box-shadow: 0 0 20px rgba(16,185,129,.15);
+    }
+    #toast.error {
+      background: rgba(239,68,68,.12);
+      border: 1px solid rgba(239,68,68,.4);
+      color: #fca5a5;
+      box-shadow: 0 0 20px rgba(239,68,68,.12);
+    }
+    #toast.info {
+      background: rgba(6,182,212,.12);
+      border: 1px solid rgba(6,182,212,.3);
+      color: #67e8f9;
+      box-shadow: 0 0 20px rgba(6,182,212,.1);
     }
 
     /* ── Book list ── */
-    #book-list { display: flex; flex-direction: column; gap: 10px; }
+    #book-list, #pub-list { display: flex; flex-direction: column; gap: 8px; }
+
     .book-item {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       padding: 12px 14px;
-      background: var(--bg2);
+      background: rgba(7,8,15,.5);
       border: 1px solid var(--border);
-      border-radius: 8px;
-      transition: border-color .2s;
+      border-radius: 10px;
+      transition: border-color .2s, background .2s;
     }
-    .book-item:hover { border-color: var(--border); }
+    .book-item:hover {
+      border-color: var(--border2);
+      background: rgba(124,58,237,.04);
+    }
     .book-item-info { flex: 1; min-width: 0; }
     .book-item-title {
-      font-family: 'Cinzel', serif;
-      font-size: .85rem;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: .88rem;
+      font-weight: 500;
       color: var(--text);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
     .book-item-meta {
-      font-size: .82rem;
+      font-size: .78rem;
       color: var(--muted);
-      font-style: italic;
       margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .book-item-cat {
-      font-family: 'Cinzel', serif;
-      font-size: .6rem;
-      letter-spacing: .1em;
-      color: var(--gold);
-      border: 1px solid rgba(201,168,76,.25);
+      font-size: .65rem;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--teal2);
+      background: rgba(13,148,136,.1);
+      border: 1px solid rgba(13,148,136,.2);
       border-radius: 4px;
-      padding: 2px 7px;
+      padding: 2px 8px;
       white-space: nowrap;
-    }
-    .delete-btn {
-      background: none;
-      border: 1px solid transparent;
-      color: #7a3030;
-      cursor: pointer;
-      padding: 5px 8px;
-      border-radius: 6px;
-      font-size: .9rem;
-      transition: all .2s;
       flex-shrink: 0;
     }
-    .delete-btn:hover { border-color: var(--error); color: #ff8080; background: rgba(192,57,43,.1); }
 
     .edit-btn {
       background: none;
       border: 1px solid transparent;
-      color: #3a7ca5;
+      color: var(--muted);
       cursor: pointer;
       padding: 5px 8px;
-      border-radius: 6px;
+      border-radius: 7px;
       font-size: .9rem;
       transition: all .2s;
       flex-shrink: 0;
     }
-    .edit-btn:hover { border-color: #3a7ca5; color: #90d0ff; background: rgba(58,124,165,.1); }
+    .edit-btn:hover {
+      border-color: rgba(124,58,237,.5);
+      color: var(--purple2);
+      background: rgba(124,58,237,.08);
+    }
+
+    .delete-btn {
+      background: none;
+      border: 1px solid transparent;
+      color: var(--muted);
+      cursor: pointer;
+      padding: 5px 8px;
+      border-radius: 7px;
+      font-size: .9rem;
+      transition: all .2s;
+      flex-shrink: 0;
+    }
+    .delete-btn:hover {
+      border-color: rgba(239,68,68,.4);
+      color: #fca5a5;
+      background: rgba(239,68,68,.08);
+    }
+
+    #empty-list, #empty-pub-list {
+      text-align: center;
+      color: var(--muted);
+      font-size: .88rem;
+      padding: 24px;
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+    }
+
+    /* ── Error box ── */
+    #error-box {
+      display: none;
+      margin-top: 16px;
+      padding: 16px;
+      background: rgba(239,68,68,.06);
+      border: 1px solid rgba(239,68,68,.3);
+      border-radius: 10px;
+      backdrop-filter: blur(8px);
+    }
+    #error-box .err-title {
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: #f87171;
+      margin-bottom: 8px;
+    }
+    #error-msg { font-size: .85rem; color: #fca5a5; line-height: 1.6; word-break: break-all; }
+    #error-hint { margin-top: 10px; font-size: .8rem; color: #f87171; opacity: .8; }
 
     /* ── Edit Modal ── */
     #edit-overlay {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,.75);
+      background: rgba(0,0,0,.7);
       z-index: 100;
       align-items: center;
       justify-content: center;
       padding: 20px;
+      backdrop-filter: blur(8px);
     }
     #edit-overlay.open { display: flex; }
     #edit-modal {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
+      background: rgba(13,14,26,.95);
+      border: 1px solid var(--border2);
+      border-radius: 16px;
       padding: 28px;
       width: 100%;
       max-width: 540px;
       max-height: 90vh;
       overflow-y: auto;
+      box-shadow: 0 24px 80px rgba(0,0,0,.6), 0 0 0 1px rgba(124,58,237,.15);
+      animation: modalIn .25s ease;
     }
-    #edit-modal .card-title { margin-bottom: 18px; }
-    .edit-actions {
-      display: flex;
-      gap: 10px;
-      margin-top: 18px;
+    @keyframes modalIn {
+      from { transform: scale(.96) translateY(16px); opacity: 0; }
+      to   { transform: scale(1) translateY(0); opacity: 1; }
     }
+    #edit-modal .card-title { margin-bottom: 20px; }
+
+    .edit-actions { display: flex; gap: 10px; margin-top: 20px; }
     .edit-actions .btn-primary { margin-top: 0; }
     .btn-cancel {
       flex: 1;
-      padding: 13px;
+      padding: 12px;
       background: transparent;
       border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--muted);
-      font-family: 'Cinzel', serif;
-      font-size: .82rem;
-      letter-spacing: .1em;
+      border-radius: 10px;
+      color: var(--muted2);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: .85rem;
+      font-weight: 500;
       cursor: pointer;
       transition: all .2s;
     }
-    .btn-cancel:hover { border-color: var(--gold); color: var(--gold); }
+    .btn-cancel:hover { border-color: var(--border2); color: var(--text); }
 
-    #empty-list {
-      text-align: center;
-      color: var(--muted);
-      font-style: italic;
-      padding: 20px;
-      font-size: .9rem;
-    }
-
-    /* ── Config saved indicator ── */
-    .saved-dot {
-      display: inline-block;
-      width: 7px; height: 7px;
-      border-radius: 50%;
-      background: var(--success);
-      margin-left: 6px;
-      vertical-align: middle;
-    }
-
+    /* ── Responsive ── */
     @media (max-width: 480px) {
       .drive-row { flex-direction: column; }
+      header h1 { font-size: 1.4rem; }
     }
   </style>
 </head>
 <body>
 
 <header>
-  <h1>⚙️ Admin Panel</h1>
-  <p>Al Ilm Al Mahfuz — Book Manager</p>
+  <div class="header-badge">Admin Panel</div>
+  <h1>Al Ilm Al Mahfuz</h1>
+  <p>Book & Publication Manager</p>
   <a href="index.html" class="back-link">← Back to Library</a>
 </header>
 
@@ -389,11 +531,10 @@
 
     <button class="btn-primary" onclick="saveConfig()">💾 Save Config & Load Books</button>
 
-    <!-- Error debug box -->
-    <div id="error-box" style="display:none;margin-top:16px;padding:14px;background:#2a0a0a;border:1px solid #7a2020;border-radius:8px;">
-      <div style="font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:.1em;color:#ff6060;margin-bottom:8px;">⚠ ERROR DETAILS</div>
-      <div id="error-msg" style="font-size:.88rem;color:#ffaaaa;line-height:1.6;word-break:break-all;"></div>
-      <div id="error-hint" style="margin-top:10px;font-size:.82rem;color:#cc8888;font-style:italic;"></div>
+    <div id="error-box">
+      <div class="err-title">⚠ Error Details</div>
+      <div id="error-msg"></div>
+      <div id="error-hint"></div>
     </div>
   </div>
 
@@ -405,19 +546,16 @@
       <label>Title <span>*</span></label>
       <input type="text" id="f-title" placeholder="e.g. Tafsir Ibn Kathir Vol 1"/>
     </div>
-
     <div class="field">
-      <label>Author <span style="color:var(--muted);font-size:.65rem;">(at least one of Author / Publication required)</span></label>
+      <label>Author <span style="color:var(--muted);font-size:.65rem;text-transform:none;letter-spacing:0">(at least one of Author / Publication required)</span></label>
       <input type="text" id="f-author" placeholder="e.g. Ibn Kathir"/>
     </div>
-
     <div class="field">
       <label>Publication</label>
       <input type="text" id="f-publication" placeholder="e.g. Darussalam" list="publication-list" autocomplete="off"/>
       <datalist id="publication-list"></datalist>
       <p class="hint">Start typing — existing publications will appear as suggestions.</p>
     </div>
-
     <div class="field">
       <label>Category</label>
       <select id="f-category">
@@ -434,14 +572,12 @@
         <option>Other</option>
       </select>
     </div>
-
     <div class="field">
       <label>Description</label>
       <textarea id="f-desc" placeholder="Short summary of the book (optional)"></textarea>
     </div>
-
     <div class="field">
-      <label>Google Drive Link <span>*</span></label>
+      <label>Google Drive / Archive.org Link <span>*</span></label>
       <div class="drive-row">
         <input type="text" id="f-link" placeholder="Paste any Google Drive share link"/>
         <button class="extract-btn" onclick="extractDriveLink()">Auto Fix</button>
@@ -459,6 +595,7 @@
       <div id="empty-list">Save your config above to load books.</div>
     </div>
   </div>
+
   <!-- STEP 4: Add Publication -->
   <div class="card">
     <div class="card-title">④ Add New Publication</div>
@@ -505,43 +642,23 @@
 
 </main>
 
-<!-- Edit Modal -->
+<!-- Edit Book Modal -->
 <div id="edit-overlay">
   <div id="edit-modal">
     <div class="card-title">✏️ Edit Book</div>
-
-    <div class="field">
-      <label>Title <span>*</span></label>
-      <input type="text" id="e-title"/>
-    </div>
-    <div class="field">
-      <label>Author</label>
-      <input type="text" id="e-author"/>
-    </div>
-    <div class="field">
-      <label>Publication</label>
-      <input type="text" id="e-publication"/>
-    </div>
+    <div class="field"><label>Title <span>*</span></label><input type="text" id="e-title"/></div>
+    <div class="field"><label>Author</label><input type="text" id="e-author"/></div>
+    <div class="field"><label>Publication</label><input type="text" id="e-publication"/></div>
     <div class="field">
       <label>Category</label>
       <select id="e-category">
         <option value="">— Select Category —</option>
-        <option>Fatawa</option>
-        <option>Hadith</option>
-        <option>Fiqh</option>
-        <option>Aqeedah</option>
-        <option>Refutation</option>
-        <option>Statement</option>
-        <option>Biography</option>
-        <option>Arabic</option>
-        <option>History</option>
-        <option>Other</option>
+        <option>Fatawa</option><option>Hadith</option><option>Fiqh</option>
+        <option>Aqeedah</option><option>Refutation</option><option>Statement</option>
+        <option>Biography</option><option>Arabic</option><option>History</option><option>Other</option>
       </select>
     </div>
-    <div class="field">
-      <label>Description</label>
-      <textarea id="e-desc"></textarea>
-    </div>
+    <div class="field"><label>Description</label><textarea id="e-desc"></textarea></div>
     <div class="field">
       <label>Google Drive Link <span>*</span></label>
       <div class="drive-row">
@@ -549,17 +666,16 @@
         <button class="extract-btn" onclick="extractEditLink()">Auto Fix</button>
       </div>
     </div>
-
     <div class="edit-actions">
       <button class="btn-cancel" onclick="closeEditModal()">Cancel</button>
-      <button class="btn-primary" id="save-edit-btn" style="flex:2" onclick="saveEdit()">💾 Save Changes</button>
+      <button class="btn-primary" id="save-edit-btn" style="flex:2;margin-top:0" onclick="saveEdit()">💾 Save Changes</button>
     </div>
   </div>
 </div>
 
 <!-- Edit Publication Modal -->
-<div id="edit-pub-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;align-items:center;justify-content:center;padding:20px;">
-  <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:28px;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;">
+<div id="edit-pub-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(8px);">
+  <div style="background:rgba(13,14,26,.95);border:1px solid #2a2d55;border-radius:16px;padding:28px;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,.6);animation:modalIn .25s ease;">
     <div class="card-title">✏️ Edit Publication</div>
     <div class="field"><label>Name <span>*</span></label><input type="text" id="ep-name"/></div>
     <div class="field"><label>Arabic / Bengali Name</label><input type="text" id="ep-arabic"/></div>
@@ -575,7 +691,7 @@
     <div class="field"><label>Website</label><input type="text" id="ep-website"/></div>
     <div class="edit-actions">
       <button class="btn-cancel" onclick="closeEditPubModal()">Cancel</button>
-      <button class="btn-primary" id="save-pub-btn" style="flex:2" onclick="saveEditPublication()">💾 Save Changes</button>
+      <button class="btn-primary" id="save-pub-btn" style="flex:2;margin-top:0" onclick="saveEditPublication()">💾 Save Changes</button>
     </div>
   </div>
 </div>
@@ -590,7 +706,6 @@
     set: (k, v) => localStorage.setItem(k, v),
   };
 
-  // Pre-fill saved config
   window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('gh-user').value  = LS.get('gh_user');
     document.getElementById('gh-repo').value  = LS.get('gh_repo');
@@ -613,11 +728,7 @@
   }
 
   function getConfig() {
-    return {
-      user:  LS.get('gh_user'),
-      repo:  LS.get('gh_repo'),
-      token: LS.get('gh_token'),
-    };
+    return { user: LS.get('gh_user'), repo: LS.get('gh_repo'), token: LS.get('gh_token') };
   }
 
   // ── GitHub API ────────────────────────────────────────
@@ -628,7 +739,6 @@
     const res = await fetch(`${API}/repos/${user}/${repo}/contents/books.json`, {
       headers: { Authorization: `token ${token}`, Accept: 'application/vnd.github.v3+json' }
     });
-    // If file doesn't exist yet, return empty state instead of crashing
     if (res.status === 404) return { content: btoa('[]'), sha: '' };
     if (!res.ok) throw new Error(`GitHub error ${res.status}: ${await res.text()}`);
     return res.json();
@@ -637,19 +747,11 @@
   async function putFile(books, sha) {
     const { user, repo, token } = getConfig();
     const content = btoa(unescape(encodeURIComponent(JSON.stringify(books, null, 2))));
-    const body = {
-      message: `📚 Update books.json — ${new Date().toLocaleDateString()}`,
-      content,
-    };
-    // Only include sha if file already exists (sha='' means new file)
+    const body = { message: `📚 Update books.json — ${new Date().toLocaleDateString()}`, content };
     if (sha) body.sha = sha;
     const res = await fetch(`${API}/repos/${user}/${repo}/contents/books.json`, {
       method: 'PUT',
-      headers: {
-        Authorization: `token ${token}`,
-        Accept: 'application/vnd.github.v3+json',
-        'Content-Type': 'application/json',
-      },
+      headers: { Authorization: `token ${token}`, Accept: 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
     });
     if (!res.ok) throw new Error(`GitHub error ${res.status}: ${await res.text()}`);
@@ -684,22 +786,19 @@
   }
 
   function showError(msg) {
-    const box   = document.getElementById('error-box');
-    const msgEl = document.getElementById('error-msg');
-    const hint  = document.getElementById('error-hint');
+    const box = document.getElementById('error-box');
     box.style.display = 'block';
-    msgEl.textContent = msg;
-    if (msg.includes('401'))      hint.textContent = '→ Token is invalid or expired. Generate a new classic token.';
-    else if (msg.includes('403')) hint.textContent = '→ Token lacks permission. Make sure "repo" scope is checked.';
-    else if (msg.includes('404')) hint.textContent = '→ Repo or books.json not found. Check username & repo name. Also make sure books.json exists in the repo (even as empty []).';
-    else if (msg.includes('422')) hint.textContent = '→ Unprocessable. The books.json may have invalid content.';
+    document.getElementById('error-msg').textContent = msg;
+    const hint = document.getElementById('error-hint');
+    if (msg.includes('401'))             hint.textContent = '→ Token is invalid or expired.';
+    else if (msg.includes('403'))        hint.textContent = '→ Token lacks permission. Make sure "repo" scope is checked.';
+    else if (msg.includes('404'))        hint.textContent = '→ Repo or books.json not found. Check username & repo name.';
+    else if (msg.includes('422'))        hint.textContent = '→ Unprocessable. The books.json may have invalid content.';
     else if (msg.includes('Failed to fetch')) hint.textContent = '→ Network error. Check your internet connection.';
     else hint.textContent = '→ Copy this message and share it to get help.';
   }
 
-  function hideError() {
-    document.getElementById('error-box').style.display = 'none';
-  }
+  function hideError() { document.getElementById('error-box').style.display = 'none'; }
 
   // ── Add book ──────────────────────────────────────────
   async function addBook() {
@@ -710,17 +809,15 @@
     const desc        = document.getElementById('f-desc').value.trim();
     const link        = document.getElementById('f-link').value.trim();
 
-    if (!title)               return toast('Title is required.', 'error');
+    if (!title)                  return toast('Title is required.', 'error');
     if (!author && !publication) return toast('Enter at least an Author or Publication.', 'error');
-    if (!link)                return toast('Google Drive link is required.', 'error');
-    if (!currentSha && currentBooks.length === 0 && currentSha !== '') return toast('Load books first (save config).', 'error');
+    if (!link)                   return toast('Google Drive link is required.', 'error');
 
     const previewLink = toPreviewLink(link);
-    if (!previewLink) return toast('Invalid Google Drive link. Paste the share link and try Auto Fix.', 'error');
+    if (!previewLink) return toast('Invalid link. Paste the share link and try Auto Fix.', 'error');
 
     const btn = document.getElementById('add-btn');
-    btn.disabled = true;
-    btn.textContent = 'Saving…';
+    btn.disabled = true; btn.textContent = 'Saving…';
 
     try {
       const newBook = { title };
@@ -729,24 +826,20 @@
       if (cat)         newBook.category    = cat;
       if (desc)        newBook.description = desc;
       newBook.link = previewLink;
-
       currentBooks.push(newBook);
       await putFile(currentBooks, currentSha);
-
       const file = await getFile();
       currentSha = file.sha;
-
       renderBookList();
       populatePublicationList();
       clearForm();
-      toast(`"${title}" added successfully!`, 'success');
+      toast(`"${title}" added!`, 'success');
     } catch (e) {
       currentBooks.pop();
-      toast('Failed to save. Check token permissions (needs repo scope).', 'error');
+      toast('Failed to save. Check token permissions.', 'error');
       console.error(e);
     } finally {
-      btn.disabled = false;
-      btn.textContent = '＋ Add Book to Library';
+      btn.disabled = false; btn.textContent = '＋ Add Book to Library';
     }
   }
 
@@ -761,9 +854,8 @@
       renderBookList();
       toast(`"${removed.title}" deleted.`, 'success');
     } catch (e) {
-      currentBooks.splice(index, 0, removed); // rollback
-      toast('Failed to delete. Try again.', 'error');
-      console.error(e);
+      currentBooks.splice(index, 0, removed);
+      toast('Failed to delete.', 'error');
     }
   }
 
@@ -796,14 +888,8 @@
 
   // ── Helpers ───────────────────────────────────────────
   function toPreviewLink(url) {
-    // Archive.org — accept details or embed links, normalize to embed
     const archiveM = url.match(/archive\.org\/(?:details|embed)\/([a-zA-Z0-9_.-]+)/);
     if (archiveM) return `https://archive.org/embed/${archiveM[1]}`;
-
-    // Google Drive formats:
-    // https://drive.google.com/file/d/FILE_ID/view?usp=sharing
-    // https://drive.google.com/open?id=FILE_ID
-    // https://drive.google.com/file/d/FILE_ID/preview
     let id = null;
     const m1 = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
     const m2 = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
@@ -815,12 +901,8 @@
   function extractDriveLink() {
     const input = document.getElementById('f-link');
     const fixed = toPreviewLink(input.value.trim());
-    if (fixed) {
-      input.value = fixed;
-      toast('Link converted to preview format ✓', 'success');
-    } else {
-      toast('Could not extract file ID. Make sure you copied a valid Google Drive share link.', 'error');
-    }
+    if (fixed) { input.value = fixed; toast('Link converted ✓', 'success'); }
+    else toast('Could not extract file ID. Paste a valid share link.', 'error');
   }
 
   function clearForm() {
@@ -854,7 +936,7 @@
     const input = document.getElementById('e-link');
     const fixed = toPreviewLink(input.value.trim());
     if (fixed) { input.value = fixed; toast('Link converted ✓', 'success'); }
-    else toast('Could not extract file ID. Paste a valid Google Drive share link.', 'error');
+    else toast('Could not extract file ID.', 'error');
   }
 
   async function saveEdit() {
@@ -871,11 +953,10 @@
     if (!link)                   return toast('Google Drive link is required.', 'error');
 
     const previewLink = toPreviewLink(link);
-    if (!previewLink) return toast('Invalid Google Drive link. Use Auto Fix.', 'error');
+    if (!previewLink) return toast('Invalid link. Use Auto Fix.', 'error');
 
     const btn = document.getElementById('save-edit-btn');
-    btn.disabled = true;
-    btn.textContent = 'Saving…';
+    btn.disabled = true; btn.textContent = 'Saving…';
 
     const original = { ...currentBooks[editingIndex] };
     const updated = { title };
@@ -884,7 +965,6 @@
     if (cat)         updated.category    = cat;
     if (desc)        updated.description = desc;
     updated.link = previewLink;
-
     currentBooks[editingIndex] = updated;
 
     try {
@@ -894,22 +974,19 @@
       renderBookList();
       populatePublicationList();
       closeEditModal();
-      toast(`"${title}" updated successfully!`, 'success');
+      toast(`"${title}" updated!`, 'success');
     } catch (e) {
-      currentBooks[editingIndex] = original; // rollback
-      toast('Failed to save. Check token permissions.', 'error');
-      console.error(e);
+      currentBooks[editingIndex] = original;
+      toast('Failed to save.', 'error');
     } finally {
-      btn.disabled = false;
-      btn.textContent = '💾 Save Changes';
+      btn.disabled = false; btn.textContent = '💾 Save Changes';
     }
   }
 
-  // Close edit modal on overlay click or Escape
   document.getElementById('edit-overlay').addEventListener('click', e => {
     if (e.target === document.getElementById('edit-overlay')) closeEditModal();
   });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeEditModal(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeEditModal(); closeEditPubModal(); } });
 
   // ── Publications ──────────────────────────────────────
   let currentPubs = [];
@@ -969,6 +1046,7 @@
     if (fixed) { input.value = fixed; toast('Logo link converted ✓', 'success'); }
     else toast('Could not extract file ID.', 'error');
   }
+
   function extractEditPubLogo() {
     const input = document.getElementById('ep-logo');
     const fixed = toDrivePreview(input.value.trim());
@@ -987,15 +1065,14 @@
     if (!name) return toast('Publication name is required.', 'error');
 
     const btn = document.getElementById('add-pub-btn');
-    btn.disabled = true;
-    btn.textContent = 'Saving…';
+    btn.disabled = true; btn.textContent = 'Saving…';
 
     const pub = { id: slugify(name), name };
-    if (arabic)  pub.arabic  = arabic;
-    if (region)  pub.region  = region;
+    if (arabic)  pub.arabic      = arabic;
+    if (region)  pub.region      = region;
     if (desc)    pub.description = desc;
-    if (logo)    pub.logo    = toDrivePreview(logo);
-    if (website) pub.website = website;
+    if (logo)    pub.logo        = toDrivePreview(logo);
+    if (website) pub.website     = website;
 
     currentPubs.push(pub);
     try {
@@ -1009,8 +1086,7 @@
       currentPubs.pop();
       toast('Failed to save publication.', 'error');
     } finally {
-      btn.disabled = false;
-      btn.textContent = '＋ Add Publication';
+      btn.disabled = false; btn.textContent = '＋ Add Publication';
     }
   }
 
@@ -1066,8 +1142,7 @@
     document.getElementById('ep-desc').value    = p.description || '';
     document.getElementById('ep-logo').value    = p.logo        || '';
     document.getElementById('ep-website').value = p.website     || '';
-    const overlay = document.getElementById('edit-pub-overlay');
-    overlay.style.display = 'flex';
+    document.getElementById('edit-pub-overlay').style.display = 'flex';
     document.body.style.overflow = 'hidden';
   }
 
@@ -1089,8 +1164,7 @@
     if (!name) return toast('Name is required.', 'error');
 
     const btn = document.getElementById('save-pub-btn');
-    btn.disabled = true;
-    btn.textContent = 'Saving…';
+    btn.disabled = true; btn.textContent = 'Saving…';
 
     const original = { ...currentPubs[editingPubIndex] };
     const updated = { id: slugify(name), name };
@@ -1112,8 +1186,7 @@
       currentPubs[editingPubIndex] = original;
       toast('Failed to save.', 'error');
     } finally {
-      btn.disabled = false;
-      btn.textContent = '💾 Save Changes';
+      btn.disabled = false; btn.textContent = '💾 Save Changes';
     }
   }
 
