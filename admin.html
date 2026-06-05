@@ -9,25 +9,21 @@
 
   <style>
     :root {
-      --bg:       #07080f;
-      --bg2:      #0d0e1a;
-      --card:     #0f1020;
-      --card2:    #131425;
-      --border:   #1e2040;
-      --border2:  #2a2d55;
-      --purple:   #7c3aed;
-      --purple2:  #a855f7;
-      --teal:     #0d9488;
-      --teal2:    #2dd4bf;
-      --cyan:     #06b6d4;
-      --pink:     #ec4899;
-      --text:     #e2e8f0;
-      --muted:    #64748b;
-      --muted2:   #94a3b8;
-      --error:    #ef4444;
-      --success:  #10b981;
-      --glow-p:   rgba(124,58,237,.25);
-      --glow-t:   rgba(13,148,136,.2);
+      --bg:      #07080f;
+      --bg2:     #0d0e1a;
+      --card:    #0f1020;
+      --border:  #1e2040;
+      --border2: #2a2d55;
+      --purple:  #7c3aed;
+      --purple2: #a855f7;
+      --teal:    #0d9488;
+      --teal2:   #2dd4bf;
+      --cyan:    #06b6d4;
+      --text:    #e2e8f0;
+      --muted:   #64748b;
+      --muted2:  #94a3b8;
+      --error:   #ef4444;
+      --success: #10b981;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -41,26 +37,13 @@
       overflow-x: hidden;
     }
 
-    /* ── Aurora background blobs ── */
     body::before {
       content: '';
       position: fixed;
       inset: 0;
       background:
         radial-gradient(ellipse 80vw 60vh at 10% -10%, rgba(124,58,237,.18) 0%, transparent 60%),
-        radial-gradient(ellipse 60vw 50vh at 90% 110%, rgba(13,148,136,.15) 0%, transparent 60%),
-        radial-gradient(ellipse 40vw 40vh at 50% 50%, rgba(236,72,153,.06) 0%, transparent 70%);
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    /* ── Noise texture overlay ── */
-    body::after {
-      content: '';
-      position: fixed;
-      inset: 0;
-      opacity: .025;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+        radial-gradient(ellipse 60vw 50vh at 90% 110%, rgba(13,148,136,.15) 0%, transparent 60%);
       pointer-events: none;
       z-index: 0;
     }
@@ -70,11 +53,10 @@
       position: relative;
       z-index: 1;
       text-align: center;
-      padding: 40px 20px 28px;
+      padding: 32px 20px 24px;
       border-bottom: 1px solid var(--border);
       background: linear-gradient(180deg, rgba(124,58,237,.08) 0%, transparent 100%);
     }
-
     .header-badge {
       display: inline-flex;
       align-items: center;
@@ -88,7 +70,7 @@
       border: 1px solid rgba(13,148,136,.25);
       border-radius: 20px;
       padding: 4px 14px;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
     .header-badge::before {
       content: '';
@@ -98,30 +80,21 @@
       box-shadow: 0 0 6px var(--teal2);
       animation: pulse 2s infinite;
     }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: .4; }
-    }
-
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
     header h1 {
       font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(1.4rem, 4vw, 2rem);
+      font-size: clamp(1.3rem, 4vw, 1.9rem);
       font-weight: 700;
       letter-spacing: -.02em;
       background: linear-gradient(135deg, #a78bfa 0%, var(--teal2) 50%, var(--cyan) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-      line-height: 1.1;
     }
-    header p {
-      color: var(--muted2);
-      font-size: .88rem;
-      margin-top: 6px;
-    }
+    header p { color: var(--muted2); font-size: .85rem; margin-top: 5px; }
     .back-link {
       display: inline-block;
-      margin-top: 14px;
+      margin-top: 12px;
       font-size: .75rem;
       font-weight: 500;
       color: var(--muted);
@@ -133,30 +106,84 @@
     }
     .back-link:hover { color: var(--teal2); border-color: rgba(13,148,136,.4); }
 
-    /* ── Layout ── */
-    main {
+    /* ── Tab bar ── */
+    #tab-bar {
+      display: none;
+      position: relative;
+      z-index: 1;
+      background: rgba(13,14,26,.9);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+      padding: 0 16px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    #tab-bar::-webkit-scrollbar { display: none; }
+    #tab-bar.visible { display: flex; }
+
+    .tab-btn {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 14px 18px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: .78rem;
+      font-weight: 600;
+      letter-spacing: .04em;
+      color: var(--muted);
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all .2s;
+      margin-bottom: -1px;
+    }
+    .tab-btn:hover { color: var(--teal2); }
+    .tab-btn.active {
+      color: var(--teal2);
+      border-bottom-color: var(--teal2);
+    }
+    .tab-btn .tab-icon { font-size: 1rem; }
+    .tab-badge {
+      font-size: .6rem;
+      font-weight: 700;
+      background: rgba(13,148,136,.15);
+      border: 1px solid rgba(13,148,136,.25);
+      color: var(--teal2);
+      border-radius: 10px;
+      padding: 1px 7px;
+    }
+
+    /* ── Tab panels ── */
+    .tab-panel {
+      display: none;
       position: relative;
       z-index: 1;
       max-width: 700px;
-      margin: 32px auto 60px;
+      margin: 28px auto 60px;
       padding: 0 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
+      animation: fadeIn .2s ease;
     }
+    .tab-panel.active { display: block; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
 
-    /* ── Section card ── */
+    /* ── Config locked state ── */
+    #config-panel { display: block; max-width: 700px; margin: 28px auto 60px; padding: 0 20px; position: relative; z-index: 1; }
+
+    /* ── Cards ── */
     .card {
       background: rgba(15,16,32,.8);
       border: 1px solid var(--border);
       border-radius: 16px;
       padding: 24px;
       backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
       position: relative;
       overflow: hidden;
       transition: border-color .25s;
+      margin-bottom: 20px;
     }
+    .card:last-child { margin-bottom: 0; }
     .card::before {
       content: '';
       position: absolute;
@@ -166,12 +193,11 @@
       opacity: 0;
       transition: opacity .25s;
     }
-    .card:focus-within::before,
-    .card:hover::before { opacity: 1; }
+    .card:focus-within::before, .card:hover::before { opacity: 1; }
 
     .card-title {
       font-family: 'Space Grotesk', sans-serif;
-      font-size: .75rem;
+      font-size: .72rem;
       font-weight: 600;
       letter-spacing: .1em;
       text-transform: uppercase;
@@ -191,10 +217,9 @@
       background: linear-gradient(90deg, var(--border2), transparent);
     }
 
-    /* ── Form fields ── */
+    /* ── Fields ── */
     .field { margin-bottom: 16px; }
     .field:last-child { margin-bottom: 0; }
-
     label {
       display: block;
       font-size: .72rem;
@@ -204,7 +229,7 @@
       color: var(--muted2);
       margin-bottom: 7px;
     }
-    label span { color: var(--pink); margin-left: 2px; }
+    label span { color: #ec4899; margin-left: 2px; }
 
     input, select, textarea {
       width: 100%;
@@ -216,29 +241,21 @@
       font-family: 'Inter', sans-serif;
       font-size: .92rem;
       outline: none;
-      transition: border-color .2s, box-shadow .2s, background .2s;
+      transition: border-color .2s, box-shadow .2s;
       -webkit-appearance: none;
     }
     input::placeholder, textarea::placeholder { color: var(--muted); }
     input:focus, select:focus, textarea:focus {
       border-color: var(--purple2);
-      background: rgba(124,58,237,.05);
       box-shadow: 0 0 0 3px rgba(124,58,237,.12);
     }
     select { cursor: pointer; }
     select option { background: #0d0e1a; }
     textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
 
-    .hint {
-      font-size: .78rem;
-      color: var(--muted);
-      margin-top: 6px;
-      line-height: 1.5;
-    }
+    .hint { font-size: .78rem; color: var(--muted); margin-top: 6px; line-height: 1.5; }
     .hint a { color: var(--teal2); text-decoration: none; }
-    .hint a:hover { text-decoration: underline; }
 
-    /* Drive link row */
     .drive-row { display: flex; gap: 8px; }
     .drive-row input { flex: 1; }
     .extract-btn {
@@ -274,18 +291,123 @@
       position: relative;
       overflow: hidden;
     }
-    .btn-primary::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, rgba(255,255,255,.15), transparent);
-      opacity: 0;
-      transition: opacity .2s;
-    }
-    .btn-primary:hover:not(:disabled)::after { opacity: 1; }
     .btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(124,58,237,.35); }
-    .btn-primary:active:not(:disabled) { transform: translateY(0); }
     .btn-primary:disabled { opacity: .4; cursor: not-allowed; }
+
+    /* ── Config status ── */
+    #config-status {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      border-radius: 10px;
+      margin-top: 14px;
+      font-size: .82rem;
+      font-weight: 500;
+    }
+    #config-status.success {
+      background: rgba(16,185,129,.08);
+      border: 1px solid rgba(16,185,129,.3);
+      color: #6ee7b7;
+    }
+    #config-status.error {
+      background: rgba(239,68,68,.08);
+      border: 1px solid rgba(239,68,68,.3);
+      color: #fca5a5;
+    }
+    #config-status.loading {
+      background: rgba(6,182,212,.08);
+      border: 1px solid rgba(6,182,212,.2);
+      color: #67e8f9;
+    }
+
+    /* ── Error box ── */
+    #error-box {
+      display: none;
+      margin-top: 16px;
+      padding: 16px;
+      background: rgba(239,68,68,.06);
+      border: 1px solid rgba(239,68,68,.3);
+      border-radius: 10px;
+    }
+    #error-box .err-title { font-size: .7rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #f87171; margin-bottom: 8px; }
+    #error-msg { font-size: .85rem; color: #fca5a5; line-height: 1.6; word-break: break-all; }
+    #error-hint { margin-top: 10px; font-size: .8rem; color: #f87171; opacity: .8; }
+
+    /* ── Book / pub list ── */
+    #book-list, #pub-list { display: flex; flex-direction: column; gap: 8px; }
+
+    .book-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      background: rgba(7,8,15,.5);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      transition: border-color .2s, background .2s;
+    }
+    .book-item:hover { border-color: var(--border2); background: rgba(124,58,237,.04); }
+    .book-item-info { flex: 1; min-width: 0; }
+    .book-item-title { font-family: 'Space Grotesk', sans-serif; font-size: .88rem; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .book-item-meta { font-size: .78rem; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .book-item-cat { font-size: .65rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--teal2); background: rgba(13,148,136,.1); border: 1px solid rgba(13,148,136,.2); border-radius: 4px; padding: 2px 8px; white-space: nowrap; flex-shrink: 0; }
+
+    .edit-btn { background: none; border: 1px solid transparent; color: var(--muted); cursor: pointer; padding: 5px 8px; border-radius: 7px; font-size: .9rem; transition: all .2s; flex-shrink: 0; }
+    .edit-btn:hover { border-color: rgba(124,58,237,.5); color: var(--purple2); background: rgba(124,58,237,.08); }
+    .delete-btn { background: none; border: 1px solid transparent; color: var(--muted); cursor: pointer; padding: 5px 8px; border-radius: 7px; font-size: .9rem; transition: all .2s; flex-shrink: 0; }
+    .delete-btn:hover { border-color: rgba(239,68,68,.4); color: #fca5a5; background: rgba(239,68,68,.08); }
+
+    #empty-list, #empty-pub-list { text-align: center; color: var(--muted); font-size: .88rem; padding: 32px; border: 1px dashed var(--border); border-radius: 10px; }
+
+    /* ── Search in library tab ── */
+    .list-search {
+      width: 100%;
+      padding: 10px 14px;
+      background: rgba(7,8,15,.6);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: .88rem;
+      outline: none;
+      margin-bottom: 14px;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .list-search::placeholder { color: var(--muted); }
+    .list-search:focus { border-color: var(--purple2); box-shadow: 0 0 0 3px rgba(124,58,237,.1); }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.7);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      backdrop-filter: blur(8px);
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: rgba(13,14,26,.97);
+      border: 1px solid var(--border2);
+      border-radius: 16px;
+      padding: 28px;
+      width: 100%;
+      max-width: 540px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 24px 80px rgba(0,0,0,.6), 0 0 0 1px rgba(124,58,237,.1);
+      animation: modalIn .25s ease;
+    }
+    @keyframes modalIn { from{transform:scale(.96) translateY(12px);opacity:0} to{transform:scale(1) translateY(0);opacity:1} }
+    .modal-box .card-title { margin-bottom: 20px; }
+    .edit-actions { display: flex; gap: 10px; margin-top: 20px; }
+    .edit-actions .btn-primary { margin-top: 0; }
+    .btn-cancel { flex: 1; padding: 12px; background: transparent; border: 1px solid var(--border); border-radius: 10px; color: var(--muted2); font-family: 'Space Grotesk', sans-serif; font-size: .85rem; font-weight: 500; cursor: pointer; transition: all .2s; }
+    .btn-cancel:hover { border-color: var(--border2); color: var(--text); }
 
     /* ── Toast ── */
     #toast {
@@ -306,194 +428,14 @@
       text-align: center;
       backdrop-filter: blur(12px);
     }
-    @keyframes toastIn {
-      from { opacity: 0; transform: translateX(-50%) translateY(12px); }
-      to   { opacity: 1; transform: translateX(-50%) translateY(0); }
-    }
-    #toast.success {
-      background: rgba(16,185,129,.15);
-      border: 1px solid rgba(16,185,129,.4);
-      color: #6ee7b7;
-      box-shadow: 0 0 20px rgba(16,185,129,.15);
-    }
-    #toast.error {
-      background: rgba(239,68,68,.12);
-      border: 1px solid rgba(239,68,68,.4);
-      color: #fca5a5;
-      box-shadow: 0 0 20px rgba(239,68,68,.12);
-    }
-    #toast.info {
-      background: rgba(6,182,212,.12);
-      border: 1px solid rgba(6,182,212,.3);
-      color: #67e8f9;
-      box-shadow: 0 0 20px rgba(6,182,212,.1);
-    }
+    @keyframes toastIn { from{opacity:0;transform:translateX(-50%) translateY(12px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
+    #toast.success { background: rgba(16,185,129,.15); border: 1px solid rgba(16,185,129,.4); color: #6ee7b7; }
+    #toast.error   { background: rgba(239,68,68,.12);  border: 1px solid rgba(239,68,68,.4);  color: #fca5a5; }
+    #toast.info    { background: rgba(6,182,212,.12);  border: 1px solid rgba(6,182,212,.3);  color: #67e8f9; }
 
-    /* ── Book list ── */
-    #book-list, #pub-list { display: flex; flex-direction: column; gap: 8px; }
-
-    .book-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 12px 14px;
-      background: rgba(7,8,15,.5);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      transition: border-color .2s, background .2s;
-    }
-    .book-item:hover {
-      border-color: var(--border2);
-      background: rgba(124,58,237,.04);
-    }
-    .book-item-info { flex: 1; min-width: 0; }
-    .book-item-title {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: .88rem;
-      font-weight: 500;
-      color: var(--text);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .book-item-meta {
-      font-size: .78rem;
-      color: var(--muted);
-      margin-top: 2px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .book-item-cat {
-      font-size: .65rem;
-      font-weight: 600;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      color: var(--teal2);
-      background: rgba(13,148,136,.1);
-      border: 1px solid rgba(13,148,136,.2);
-      border-radius: 4px;
-      padding: 2px 8px;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-
-    .edit-btn {
-      background: none;
-      border: 1px solid transparent;
-      color: var(--muted);
-      cursor: pointer;
-      padding: 5px 8px;
-      border-radius: 7px;
-      font-size: .9rem;
-      transition: all .2s;
-      flex-shrink: 0;
-    }
-    .edit-btn:hover {
-      border-color: rgba(124,58,237,.5);
-      color: var(--purple2);
-      background: rgba(124,58,237,.08);
-    }
-
-    .delete-btn {
-      background: none;
-      border: 1px solid transparent;
-      color: var(--muted);
-      cursor: pointer;
-      padding: 5px 8px;
-      border-radius: 7px;
-      font-size: .9rem;
-      transition: all .2s;
-      flex-shrink: 0;
-    }
-    .delete-btn:hover {
-      border-color: rgba(239,68,68,.4);
-      color: #fca5a5;
-      background: rgba(239,68,68,.08);
-    }
-
-    #empty-list, #empty-pub-list {
-      text-align: center;
-      color: var(--muted);
-      font-size: .88rem;
-      padding: 24px;
-      border: 1px dashed var(--border);
-      border-radius: 10px;
-    }
-
-    /* ── Error box ── */
-    #error-box {
-      display: none;
-      margin-top: 16px;
-      padding: 16px;
-      background: rgba(239,68,68,.06);
-      border: 1px solid rgba(239,68,68,.3);
-      border-radius: 10px;
-      backdrop-filter: blur(8px);
-    }
-    #error-box .err-title {
-      font-size: .7rem;
-      font-weight: 700;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      color: #f87171;
-      margin-bottom: 8px;
-    }
-    #error-msg { font-size: .85rem; color: #fca5a5; line-height: 1.6; word-break: break-all; }
-    #error-hint { margin-top: 10px; font-size: .8rem; color: #f87171; opacity: .8; }
-
-    /* ── Edit Modal ── */
-    #edit-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.7);
-      z-index: 100;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      backdrop-filter: blur(8px);
-    }
-    #edit-overlay.open { display: flex; }
-    #edit-modal {
-      background: rgba(13,14,26,.95);
-      border: 1px solid var(--border2);
-      border-radius: 16px;
-      padding: 28px;
-      width: 100%;
-      max-width: 540px;
-      max-height: 90vh;
-      overflow-y: auto;
-      box-shadow: 0 24px 80px rgba(0,0,0,.6), 0 0 0 1px rgba(124,58,237,.15);
-      animation: modalIn .25s ease;
-    }
-    @keyframes modalIn {
-      from { transform: scale(.96) translateY(16px); opacity: 0; }
-      to   { transform: scale(1) translateY(0); opacity: 1; }
-    }
-    #edit-modal .card-title { margin-bottom: 20px; }
-
-    .edit-actions { display: flex; gap: 10px; margin-top: 20px; }
-    .edit-actions .btn-primary { margin-top: 0; }
-    .btn-cancel {
-      flex: 1;
-      padding: 12px;
-      background: transparent;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      color: var(--muted2);
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: .85rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all .2s;
-    }
-    .btn-cancel:hover { border-color: var(--border2); color: var(--text); }
-
-    /* ── Responsive ── */
     @media (max-width: 480px) {
       .drive-row { flex-direction: column; }
-      header h1 { font-size: 1.4rem; }
+      .tab-btn { padding: 12px 12px; font-size: .72rem; }
     }
   </style>
 </head>
@@ -506,12 +448,28 @@
   <a href="index.html" class="back-link">← Back to Library</a>
 </header>
 
-<main>
+<!-- TAB BAR (hidden until config verified) -->
+<div id="tab-bar">
+  <button class="tab-btn active" data-tab="config" onclick="switchTab('config')">
+    <span class="tab-icon">⚙️</span> Config
+  </button>
+  <button class="tab-btn" data-tab="add-book" onclick="switchTab('add-book')">
+    <span class="tab-icon">➕</span> Add Book
+  </button>
+  <button class="tab-btn" data-tab="library" onclick="switchTab('library')">
+    <span class="tab-icon">📚</span> Library
+    <span class="tab-badge" id="book-count-badge">0</span>
+  </button>
+  <button class="tab-btn" data-tab="publications" onclick="switchTab('publications')">
+    <span class="tab-icon">🏛️</span> Publications
+    <span class="tab-badge" id="pub-count-badge">0</span>
+  </button>
+</div>
 
-  <!-- STEP 1: GitHub Config -->
-  <div class="card" id="config-card">
-    <div class="card-title">① GitHub Config</div>
-
+<!-- CONFIG PANEL (always visible before auth, becomes a tab after) -->
+<div id="config-panel">
+  <div class="card">
+    <div class="card-title">GitHub Configuration</div>
     <div class="field">
       <label>GitHub Username <span>*</span></label>
       <input type="text" id="gh-user" placeholder="e.g. yourname"/>
@@ -523,128 +481,92 @@
     <div class="field">
       <label>Personal Access Token <span>*</span></label>
       <input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"/>
-      <p class="hint">
-        Generate at <a href="https://github.com/settings/tokens/new" target="_blank">github.com/settings/tokens</a>
-        → select <strong>repo</strong> scope only. Saved in your browser only.
-      </p>
+      <p class="hint">Generate at <a href="https://github.com/settings/tokens/new" target="_blank">github.com/settings/tokens</a> → select <strong>repo</strong> scope only.</p>
     </div>
-
-    <button class="btn-primary" onclick="saveConfig()">💾 Save Config & Load Books</button>
-
+    <button class="btn-primary" id="save-config-btn" onclick="saveConfig()">🔓 Verify & Unlock</button>
+    <div id="config-status"></div>
     <div id="error-box">
       <div class="err-title">⚠ Error Details</div>
       <div id="error-msg"></div>
       <div id="error-hint"></div>
     </div>
   </div>
+</div>
 
-  <!-- STEP 2: Add Book -->
+<!-- ADD BOOK TAB -->
+<div class="tab-panel" id="tab-add-book">
   <div class="card">
-    <div class="card-title">② Add New Book</div>
-
+    <div class="card-title">Add New Book</div>
+    <div class="field"><label>Title <span>*</span></label><input type="text" id="f-title" placeholder="e.g. Tafsir Ibn Kathir"/></div>
     <div class="field">
-      <label>Title <span>*</span></label>
-      <input type="text" id="f-title" placeholder="e.g. Tafsir Ibn Kathir Vol 1"/>
-    </div>
-    <div class="field">
-      <label>Author <span style="color:var(--muted);font-size:.65rem;text-transform:none;letter-spacing:0">(at least one of Author / Publication required)</span></label>
+      <label>Author</label>
       <input type="text" id="f-author" placeholder="e.g. Ibn Kathir"/>
     </div>
     <div class="field">
       <label>Publication</label>
       <input type="text" id="f-publication" placeholder="e.g. Darussalam" list="publication-list" autocomplete="off"/>
       <datalist id="publication-list"></datalist>
-      <p class="hint">Start typing — existing publications will appear as suggestions.</p>
     </div>
     <div class="field">
       <label>Category</label>
       <select id="f-category">
         <option value="">— Select Category —</option>
-        <option>Fatawa</option>
-        <option>Hadith</option>
-        <option>Fiqh</option>
-        <option>Aqeedah</option>
-        <option>Refutation</option>
-        <option>Statement</option>
-        <option>Biography</option>
-        <option>Arabic</option>
-        <option>History</option>
-        <option>Other</option>
+        <option>Fatawa</option><option>Hadith</option><option>Fiqh</option>
+        <option>Aqeedah</option><option>Refutation</option><option>Statement</option>
+        <option>Biography</option><option>Arabic</option><option>History</option><option>Other</option>
       </select>
     </div>
-    <div class="field">
-      <label>Description</label>
-      <textarea id="f-desc" placeholder="Short summary of the book (optional)"></textarea>
-    </div>
+    <div class="field"><label>Description</label><textarea id="f-desc" placeholder="Short summary (optional)"></textarea></div>
     <div class="field">
       <label>Google Drive / Archive.org Link <span>*</span></label>
       <div class="drive-row">
-        <input type="text" id="f-link" placeholder="Paste any Google Drive share link"/>
+        <input type="text" id="f-link" placeholder="Paste share link"/>
         <button class="extract-btn" onclick="extractDriveLink()">Auto Fix</button>
       </div>
-      <p class="hint">Paste a Google Drive share link or an Archive.org details/embed link. "Auto Fix" converts it automatically.</p>
+      <p class="hint">Supports Google Drive share links and Archive.org links.</p>
     </div>
-
     <button class="btn-primary" id="add-btn" onclick="addBook()">＋ Add Book to Library</button>
   </div>
+</div>
 
-  <!-- STEP 3: Manage existing books -->
+<!-- LIBRARY TAB -->
+<div class="tab-panel" id="tab-library">
   <div class="card">
-    <div class="card-title">③ Current Books</div>
-    <div id="book-list">
-      <div id="empty-list">Save your config above to load books.</div>
-    </div>
+    <div class="card-title">Current Books</div>
+    <input type="text" class="list-search" id="book-search" placeholder="Search books…" oninput="filterBookList(this.value)"/>
+    <div id="book-list"><div id="empty-list">No books loaded yet.</div></div>
   </div>
+</div>
 
-  <!-- STEP 4: Add Publication -->
+<!-- PUBLICATIONS TAB -->
+<div class="tab-panel" id="tab-publications">
+  <!-- Add publication -->
   <div class="card">
-    <div class="card-title">④ Add New Publication</div>
-
-    <div class="field">
-      <label>Name <span>*</span></label>
-      <input type="text" id="p-name" placeholder="e.g. Fatawa Archive"/>
-    </div>
-    <div class="field">
-      <label>Arabic / Bengali Name</label>
-      <input type="text" id="p-arabic" placeholder="e.g. فتوى أرشيف"/>
-    </div>
-    <div class="field">
-      <label>Region</label>
-      <input type="text" id="p-region" placeholder="e.g. Bangladesh"/>
-    </div>
-    <div class="field">
-      <label>Description</label>
-      <textarea id="p-desc" placeholder="Short info about this publication (optional)"></textarea>
-    </div>
+    <div class="card-title">Add New Publication</div>
+    <div class="field"><label>Name <span>*</span></label><input type="text" id="p-name" placeholder="e.g. Fatawa Archive"/></div>
+    <div class="field"><label>Arabic / Bengali Name</label><input type="text" id="p-arabic" placeholder="e.g. فتوى أرشيف"/></div>
+    <div class="field"><label>Region</label><input type="text" id="p-region" placeholder="e.g. Bangladesh"/></div>
+    <div class="field"><label>Description</label><textarea id="p-desc" placeholder="Short info (optional)"></textarea></div>
     <div class="field">
       <label>Logo (Google Drive Link)</label>
       <div class="drive-row">
-        <input type="text" id="p-logo" placeholder="Paste Google Drive share link for logo image"/>
+        <input type="text" id="p-logo" placeholder="Paste Google Drive share link for logo"/>
         <button class="extract-btn" onclick="extractPubLogo()">Auto Fix</button>
       </div>
-      <p class="hint">Upload the logo image to Google Drive, share it, paste the link here.</p>
     </div>
-    <div class="field">
-      <label>Website</label>
-      <input type="text" id="p-website" placeholder="https://example.com (optional)"/>
-    </div>
-
+    <div class="field"><label>Website</label><input type="text" id="p-website" placeholder="https://example.com (optional)"/></div>
     <button class="btn-primary" id="add-pub-btn" onclick="addPublication()">＋ Add Publication</button>
   </div>
-
-  <!-- STEP 5: Manage publications -->
+  <!-- Publication list -->
   <div class="card">
-    <div class="card-title">⑤ Current Publications</div>
-    <div id="pub-list">
-      <div id="empty-pub-list">Save your config above to load publications.</div>
-    </div>
+    <div class="card-title">Current Publications</div>
+    <div id="pub-list"><div id="empty-pub-list">No publications loaded yet.</div></div>
   </div>
+</div>
 
-</main>
-
-<!-- Edit Book Modal -->
-<div id="edit-overlay">
-  <div id="edit-modal">
+<!-- EDIT BOOK MODAL -->
+<div class="modal-overlay" id="edit-overlay">
+  <div class="modal-box">
     <div class="card-title">✏️ Edit Book</div>
     <div class="field"><label>Title <span>*</span></label><input type="text" id="e-title"/></div>
     <div class="field"><label>Author</label><input type="text" id="e-author"/></div>
@@ -660,7 +582,7 @@
     </div>
     <div class="field"><label>Description</label><textarea id="e-desc"></textarea></div>
     <div class="field">
-      <label>Google Drive Link <span>*</span></label>
+      <label>Link <span>*</span></label>
       <div class="drive-row">
         <input type="text" id="e-link"/>
         <button class="extract-btn" onclick="extractEditLink()">Auto Fix</button>
@@ -673,9 +595,9 @@
   </div>
 </div>
 
-<!-- Edit Publication Modal -->
-<div id="edit-pub-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(8px);">
-  <div style="background:rgba(13,14,26,.95);border:1px solid #2a2d55;border-radius:16px;padding:28px;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,.6);animation:modalIn .25s ease;">
+<!-- EDIT PUBLICATION MODAL -->
+<div class="modal-overlay" id="edit-pub-overlay">
+  <div class="modal-box">
     <div class="card-title">✏️ Edit Publication</div>
     <div class="field"><label>Name <span>*</span></label><input type="text" id="ep-name"/></div>
     <div class="field"><label>Arabic / Bengali Name</label><input type="text" id="ep-arabic"/></div>
@@ -696,15 +618,32 @@
   </div>
 </div>
 
-<!-- Toast -->
 <div id="toast"></div>
 
 <script>
+  // ── Tab switching ──────────────────────────────────────
+  function switchTab(name) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+
+    if (name === 'config') {
+      document.getElementById('config-panel').style.display = 'block';
+      document.querySelectorAll('.tab-panel').forEach(p => p.style.display = 'none');
+    } else {
+      document.getElementById('config-panel').style.display = 'none';
+      const panel = document.getElementById(`tab-${name}`);
+      if (panel) { panel.style.display = 'block'; panel.classList.add('active'); }
+    }
+  }
+
+  function unlockTabs() {
+    document.getElementById('tab-bar').classList.add('visible');
+    document.getElementById('config-panel').style.display = 'none';
+    switchTab('library');
+  }
+
   // ── Config ────────────────────────────────────────────
-  const LS = {
-    get: k => localStorage.getItem(k) || '',
-    set: (k, v) => localStorage.setItem(k, v),
-  };
+  const LS = { get: k => localStorage.getItem(k)||'', set: (k,v) => localStorage.setItem(k,v) };
 
   window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('gh-user').value  = LS.get('gh_user');
@@ -715,16 +654,28 @@
     }
   });
 
-  function saveConfig() {
+  function setConfigStatus(type, msg) {
+    const el = document.getElementById('config-status');
+    el.style.display = 'flex';
+    el.className = type;
+    el.textContent = msg;
+  }
+
+  async function saveConfig() {
     const user  = document.getElementById('gh-user').value.trim();
     const repo  = document.getElementById('gh-repo').value.trim();
     const token = document.getElementById('gh-token').value.trim();
     if (!user || !repo || !token) return toast('Fill in all config fields.', 'error');
-    LS.set('gh_user', user);
-    LS.set('gh_repo', repo);
-    LS.set('gh_token', token);
-    toast('Config saved!', 'success');
-    loadBooks();
+    LS.set('gh_user', user); LS.set('gh_repo', repo); LS.set('gh_token', token);
+    const btn = document.getElementById('save-config-btn');
+    btn.disabled = true; btn.textContent = 'Verifying…';
+    setConfigStatus('loading', '⏳ Connecting to GitHub…');
+    hideError();
+    try {
+      await loadBooks();
+    } finally {
+      btn.disabled = false; btn.textContent = '🔓 Verify & Unlock';
+    }
   }
 
   function getConfig() {
@@ -765,17 +716,19 @@
   async function loadBooks() {
     hideError();
     try {
-      toast('Loading books…', 'info');
       const file = await getFile();
       currentSha   = file.sha;
       currentBooks = JSON.parse(decodeURIComponent(escape(atob(file.content.replace(/\n/g, '')))));
       renderBookList();
       populatePublicationList();
-      toast(`Loaded ${currentBooks.length} books.`, 'success');
+      document.getElementById('book-count-badge').textContent = currentBooks.length;
+      setConfigStatus('success', `✓ Connected — ${currentBooks.length} books loaded`);
+      unlockTabs();
       loadPublications();
     } catch (e) {
-      toast('Failed. See error details below.', 'error');
+      setConfigStatus('error', '✗ Connection failed — see error below');
       showError(e.message);
+      throw e;
     }
   }
 
@@ -790,15 +743,23 @@
     box.style.display = 'block';
     document.getElementById('error-msg').textContent = msg;
     const hint = document.getElementById('error-hint');
-    if (msg.includes('401'))             hint.textContent = '→ Token is invalid or expired.';
-    else if (msg.includes('403'))        hint.textContent = '→ Token lacks permission. Make sure "repo" scope is checked.';
-    else if (msg.includes('404'))        hint.textContent = '→ Repo or books.json not found. Check username & repo name.';
-    else if (msg.includes('422'))        hint.textContent = '→ Unprocessable. The books.json may have invalid content.';
-    else if (msg.includes('Failed to fetch')) hint.textContent = '→ Network error. Check your internet connection.';
-    else hint.textContent = '→ Copy this message and share it to get help.';
+    if (msg.includes('401'))              hint.textContent = '→ Token is invalid or expired.';
+    else if (msg.includes('403'))         hint.textContent = '→ Token lacks repo scope permission.';
+    else if (msg.includes('404'))         hint.textContent = '→ Repo not found. Check username & repo name.';
+    else if (msg.includes('Failed to fetch')) hint.textContent = '→ Network error. Check your connection.';
+    else hint.textContent = '→ Copy this error and share it for help.';
   }
-
   function hideError() { document.getElementById('error-box').style.display = 'none'; }
+
+  // ── Book list filtering ───────────────────────────────
+  function filterBookList(q) {
+    const items = document.querySelectorAll('#book-list .book-item');
+    q = q.toLowerCase();
+    items.forEach(item => {
+      const text = item.querySelector('.book-item-title').textContent.toLowerCase();
+      item.style.display = text.includes(q) ? '' : 'none';
+    });
+  }
 
   // ── Add book ──────────────────────────────────────────
   async function addBook() {
@@ -811,7 +772,7 @@
 
     if (!title)                  return toast('Title is required.', 'error');
     if (!author && !publication) return toast('Enter at least an Author or Publication.', 'error');
-    if (!link)                   return toast('Google Drive link is required.', 'error');
+    if (!link)                   return toast('Link is required.', 'error');
 
     const previewLink = toPreviewLink(link);
     if (!previewLink) return toast('Invalid link. Paste the share link and try Auto Fix.', 'error');
@@ -832,12 +793,13 @@
       currentSha = file.sha;
       renderBookList();
       populatePublicationList();
+      document.getElementById('book-count-badge').textContent = currentBooks.length;
       clearForm();
       toast(`"${title}" added!`, 'success');
+      switchTab('library');
     } catch (e) {
       currentBooks.pop();
       toast('Failed to save. Check token permissions.', 'error');
-      console.error(e);
     } finally {
       btn.disabled = false; btn.textContent = '＋ Add Book to Library';
     }
@@ -852,6 +814,7 @@
       const file = await getFile();
       currentSha = file.sha;
       renderBookList();
+      document.getElementById('book-count-badge').textContent = currentBooks.length;
       toast(`"${removed.title}" deleted.`, 'success');
     } catch (e) {
       currentBooks.splice(index, 0, removed);
@@ -863,7 +826,7 @@
   function renderBookList() {
     const container = document.getElementById('book-list');
     if (currentBooks.length === 0) {
-      container.innerHTML = '<div id="empty-list">No books yet. Add one above!</div>';
+      container.innerHTML = '<div id="empty-list">No books yet. Add one!</div>';
       return;
     }
     container.innerHTML = '';
@@ -877,8 +840,8 @@
           <div class="book-item-meta">${meta}</div>
         </div>
         ${b.category ? `<span class="book-item-cat">${b.category}</span>` : ''}
-        <button class="edit-btn" title="Edit book">✏️</button>
-        <button class="delete-btn" title="Delete book">🗑</button>
+        <button class="edit-btn" title="Edit">✏️</button>
+        <button class="delete-btn" title="Delete">🗑</button>
       `;
       item.querySelector('.edit-btn').addEventListener('click', () => openEditModal(i));
       item.querySelector('.delete-btn').addEventListener('click', () => deleteBook(i));
@@ -893,8 +856,7 @@
     let id = null;
     const m1 = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
     const m2 = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-    if (m1) id = m1[1];
-    else if (m2) id = m2[1];
+    if (m1) id = m1[1]; else if (m2) id = m2[1];
     return id ? `https://drive.google.com/file/d/${id}/preview` : null;
   }
 
@@ -902,7 +864,7 @@
     const input = document.getElementById('f-link');
     const fixed = toPreviewLink(input.value.trim());
     if (fixed) { input.value = fixed; toast('Link converted ✓', 'success'); }
-    else toast('Could not extract file ID. Paste a valid share link.', 'error');
+    else toast('Could not extract file ID.', 'error');
   }
 
   function clearForm() {
@@ -949,8 +911,8 @@
     const link        = document.getElementById('e-link').value.trim();
 
     if (!title)                  return toast('Title is required.', 'error');
-    if (!author && !publication) return toast('Enter at least an Author or Publication.', 'error');
-    if (!link)                   return toast('Google Drive link is required.', 'error');
+    if (!author && !publication) return toast('Enter at least Author or Publication.', 'error');
+    if (!link)                   return toast('Link is required.', 'error');
 
     const previewLink = toPreviewLink(link);
     if (!previewLink) return toast('Invalid link. Use Auto Fix.', 'error');
@@ -986,7 +948,6 @@
   document.getElementById('edit-overlay').addEventListener('click', e => {
     if (e.target === document.getElementById('edit-overlay')) closeEditModal();
   });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeEditModal(); closeEditPubModal(); } });
 
   // ── Publications ──────────────────────────────────────
   let currentPubs = [];
@@ -1027,6 +988,7 @@
       currentPubSha = file.sha;
       currentPubs = JSON.parse(decodeURIComponent(escape(atob(file.content.replace(/\n/g, '')))));
       renderPubList();
+      document.getElementById('pub-count-badge').textContent = currentPubs.length;
     } catch (e) {
       console.error('Could not load publications.json', e);
     }
@@ -1043,14 +1005,14 @@
   function extractPubLogo() {
     const input = document.getElementById('p-logo');
     const fixed = toDrivePreview(input.value.trim());
-    if (fixed) { input.value = fixed; toast('Logo link converted ✓', 'success'); }
+    if (fixed) { input.value = fixed; toast('Logo converted ✓', 'success'); }
     else toast('Could not extract file ID.', 'error');
   }
 
   function extractEditPubLogo() {
     const input = document.getElementById('ep-logo');
     const fixed = toDrivePreview(input.value.trim());
-    if (fixed) { input.value = fixed; toast('Logo link converted ✓', 'success'); }
+    if (fixed) { input.value = fixed; toast('Logo converted ✓', 'success'); }
     else toast('Could not extract file ID.', 'error');
   }
 
@@ -1080,6 +1042,7 @@
       const file = await getPubFile();
       currentPubSha = file.sha;
       renderPubList();
+      document.getElementById('pub-count-badge').textContent = currentPubs.length;
       clearPubForm();
       toast(`"${name}" added!`, 'success');
     } catch(e) {
@@ -1102,6 +1065,7 @@
       const file = await getPubFile();
       currentPubSha = file.sha;
       renderPubList();
+      document.getElementById('pub-count-badge').textContent = currentPubs.length;
       toast(`"${removed.name}" deleted.`, 'success');
     } catch(e) {
       currentPubs.splice(index, 0, removed);
@@ -1142,12 +1106,12 @@
     document.getElementById('ep-desc').value    = p.description || '';
     document.getElementById('ep-logo').value    = p.logo        || '';
     document.getElementById('ep-website').value = p.website     || '';
-    document.getElementById('edit-pub-overlay').style.display = 'flex';
+    document.getElementById('edit-pub-overlay').classList.add('open');
     document.body.style.overflow = 'hidden';
   }
 
   function closeEditPubModal() {
-    document.getElementById('edit-pub-overlay').style.display = 'none';
+    document.getElementById('edit-pub-overlay').classList.remove('open');
     document.body.style.overflow = '';
     editingPubIndex = -1;
   }
@@ -1194,6 +1158,10 @@
     if (e.target === document.getElementById('edit-pub-overlay')) closeEditPubModal();
   });
 
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { closeEditModal(); closeEditPubModal(); }
+  });
+
   let toastTimer;
   function toast(msg, type = 'info') {
     const el = document.getElementById('toast');
@@ -1204,6 +1172,5 @@
     toastTimer = setTimeout(() => { el.style.display = 'none'; }, 3500);
   }
 </script>
-
 </body>
 </html>
