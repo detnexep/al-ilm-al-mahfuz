@@ -623,16 +623,19 @@
 <script>
   // ── Tab switching ──────────────────────────────────────
   function switchTab(name) {
+    // Update tab button states
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
-    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
 
+    // Hide everything first
+    document.getElementById('config-panel').style.display = 'none';
+    document.querySelectorAll('.tab-panel').forEach(p => p.style.display = 'none');
+
+    // Show the right panel
     if (name === 'config') {
       document.getElementById('config-panel').style.display = 'block';
-      document.querySelectorAll('.tab-panel').forEach(p => p.style.display = 'none');
     } else {
-      document.getElementById('config-panel').style.display = 'none';
       const panel = document.getElementById(`tab-${name}`);
-      if (panel) { panel.style.display = 'block'; panel.classList.add('active'); }
+      if (panel) panel.style.display = 'block';
     }
   }
 
